@@ -14,6 +14,7 @@ class LogController extends Controller
             DB::table('logs')->insert([
                 'page_url'   => $request->page_url,
                 'origin'     => $request->origin,
+                'type'     => $request->type,
                 'message'    => $request->message,
                 'ip_address' => $request->ip(),
                 'created_at' => now(),
