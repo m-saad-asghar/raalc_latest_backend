@@ -23,7 +23,7 @@ use App\Http\Controllers\Apis\ReviewController;
 use App\Http\Controllers\Apis\ElementController;
 use App\Http\Controllers\Apis\QuoteController;
 use App\Http\Controllers\Apis\CaseManagementController;
-
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\Apis\NotificationController;
 
 Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
@@ -45,6 +45,7 @@ Route::post('login', [UserController::class, 'clientLogin'])->name('clientLogin'
 
 Route::post('serviceSlug', [ServicesController::class, 'serviceSlug'])->name('serviceSlug');
 Route::post('teamSlug', [TeamController::class, 'teamSlug'])->name('teamSlug');
+Route::post('save_log', [LogController::class, 'saveLog'])->name('saveLog');
 
 // Send OTP to user
 Route::post('sendOtp', [OtpController::class, 'sendOtp']);
@@ -363,7 +364,7 @@ Route::middleware(['auth:api', 'jwt.expired'])->group(function () {
         // About Us Routes
         Route::post('/aboutUs/{lang?}', [WebContentController::class, 'saveOrUpdateWebAboutUsContent']);
         
-        // Privacy policy 
+        // Privacy policy right here
         Route::post('/privacy_policy/{lang}', [WebContentController::class,'createOrUpdatePrivacyPolicy']);
         
         /* T&C content controller */
