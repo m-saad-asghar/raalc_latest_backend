@@ -36,4 +36,34 @@ class LogController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function getLogs(Request $request)
+    {
+        $perPage = $request->get('per_page', 15);
+        $origin = $request->get('origin');
+
+        $query = DB::table('logs');
+
+        if ($origin) {
+            $query->where('origin', 'LIKE', "%$origin%");
+        }
+
+        $currentPage = $request->get('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+
+        $total = $query->count();
+
+        $data = $query->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source')
+                      ->orderBy('created_at', 'desc')
+                      ->offset($offset)
+                      ->limit($perPage)
+                      ->get();
+
+        return response()->json([
+            'current_page' => (int)$currentPage,
+            'per_page' => (int)$perPage,
+            'total' => $total,
+            'data' => $data
+        ]);
+    }
 }
