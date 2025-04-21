@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use Carbon\Carbon;
 
 class LogController extends Controller
 {
@@ -75,7 +76,10 @@ class LogController extends Controller
         }
 
         if (is_array($dateRange) && count($dateRange) === 2) {
-            $query->whereBetween('created_at', [$dateRange[0], $dateRange[1]]);
+            $query->whereBetween('created_at', [
+                Carbon::parse($dateRange[0])->startOfDay(),
+                Carbon::parse($dateRange[1])->endOfDay(),  
+            ]);
         }
     
         $total = $query->count();
