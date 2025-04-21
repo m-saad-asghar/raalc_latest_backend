@@ -49,6 +49,7 @@ class LogController extends Controller
         $source = $request->get('source');
         $ipAddress = $request->get('ip_address');
         $pageUrl = $request->get('page_url');
+        $dateRange = $request->get('date_range');
     
         // Build the query
         $query = DB::table('logs');
@@ -71,6 +72,10 @@ class LogController extends Controller
     
         if ($pageUrl) {
             $query->where('page_url', 'LIKE', "%$pageUrl%");
+        }
+
+        if (is_array($dateRange) && count($dateRange) === 2) {
+            $query->whereBetween('created_at', [$dateRange[0], $dateRange[1]]);
         }
     
         $total = $query->count();
