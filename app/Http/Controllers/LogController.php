@@ -97,4 +97,15 @@ class LogController extends Controller
             'data' => $data,
         ]);
     }
+
+    public function getLogsLatestRecord(Request $request)
+    {
+        $latestLog = DB::table('logs')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    return response()->json([
+        'data' => $latestLog,
+    ]);
+    }
 }
