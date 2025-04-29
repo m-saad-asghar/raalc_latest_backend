@@ -1229,7 +1229,8 @@ class CaseManagementController extends Controller
                     ->toArray();    
                 
                 // Add the client and admin email to the list
-                $recipients = array_merge([$isAdmin, $client_email], $lawyer_emails, $legal_secretary_emails);
+                // $recipients = array_merge([$isAdmin, $client_email], $lawyer_emails, $legal_secretary_emails);
+                $recipients = [$isAdmin, $client_email];
                 
                  // Remove invalid or empty email addresses
                 $recipients = array_filter($recipients, function ($email) {
