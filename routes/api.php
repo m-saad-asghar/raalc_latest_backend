@@ -45,7 +45,7 @@ Route::post('login', [UserController::class, 'clientLogin'])->name('clientLogin'
 
 Route::post('serviceSlug', [ServicesController::class, 'serviceSlug'])->name('serviceSlug');
 Route::post('teamSlug', [TeamController::class, 'teamSlug'])->name('teamSlug');
-Route::post('save_log', [LogController::class, 'saveLog'])->name('saveLog');
+Route::any('save_log', [LogController::class, 'saveLog'])->name('saveLog');
 Route::get('get_logs', [LogController::class, 'getLogs'])->name('getLogs');
 Route::get('get_logs_latest_record', [LogController::class, 'getLogsLatestRecord'])->name('getLogsLatestRecord');
 
