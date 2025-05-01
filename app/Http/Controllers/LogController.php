@@ -24,6 +24,36 @@ class LogController extends Controller
                 'updated_at' => now(),
             ]);
     
+            return response()->json([
+                'status'     => true,
+                'message'    => 'Log saved successfully',
+            ], Response::HTTP_OK);
+    
+        } catch (\Exception $e) {
+            Log::error('Log saving failed', ['error' => $e->getMessage()]);
+    
+            return response()->json([
+                'status'     => false,
+                'message'    => 'Failed to save log',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function saveLogs(Request $request)
+    {
+        try {
+            DB::table('logs')->insert([
+                'page_url'   => $request->page_url,
+                'origin'     => $request->origin,
+                'ad_number' => $request->ad_number ?? '',
+                'source'     => $request->source,
+                'type'     => $request->type,
+                'message'    => $request->message,
+                'ip_address' => $request->ip(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+    
             return redirect()->away('https://wa.me/97145693370?text=' . urlencode('Need legal support? Chat with RAALC on WhatsApp'));
     
         } catch (\Exception $e) {
