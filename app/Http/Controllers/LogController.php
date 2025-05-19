@@ -12,10 +12,24 @@ class LogController extends Controller
     public function saveLog(Request $request)
     {
         try {
+
+            if (empty($adNumber) && $request->has('page_url')) {
+                $parsedUrl = parse_url($request->page_url);
+            
+                if (isset($parsedUrl['query'])) {
+                    parse_str($parsedUrl['query'], $queryParams);
+            
+                    if (isset($queryParams['gad_campaignid'])) {
+                        $adNumber = $queryParams['gad_campaignid'];
+                    }
+                }
+            }
+
             DB::table('logs')->insert([
                 'page_url'   => $request->page_url,
                 'origin'     => $request->origin,
-                'ad_number' => $request->ad_number ?? '',
+                'ad_number'  => $adNumber ?? '',
+                // 'ad_number' => $request->ad_number ?? '',
                 'source'     => $request->source,
                 'type'     => $request->type,
                 'message'    => $request->message,
