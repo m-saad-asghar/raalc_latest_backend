@@ -59,7 +59,10 @@ class TeamController extends Controller
     {
         try {
             
-            $teamsQuery = Team::orderBy('order_number', 'ASC');
+            // $teamsQuery = Team::orderBy('order_number', 'ASC');
+
+            $teamsQuery = Team::orderBy('order_number', 'ASC')
+                  ->orderBy('slug', 'DESC');
                 
              // Implement pagination if $id is null
             if ($limit == 0) {
