@@ -149,10 +149,21 @@ class ServicesController extends Controller
                 return $translatedData;
                 
             });
+
+             $webContentController = new WebContentController();
+            $newsMeta =  $webContentController->getWebMetaDeta('services',$lang);
+            
+            if($newsMeta->original['data']){
+                $translatedData = $newsMeta->original['data'];
+            }else{
+                $translatedData = [];
+            }
+
+            $servicesFetch = array('services' => $servicesWithTranslations, 'meta' => $translatedData);
     
             return response()->json([
                 'status' => 'true',
-                'data' => $servicesWithTranslations,
+                'data' => $servicesFetch,
                 'pagination' => [
                         'current_page' => $services->currentPage(),
                         'last_page' => $services->lastPage(),
