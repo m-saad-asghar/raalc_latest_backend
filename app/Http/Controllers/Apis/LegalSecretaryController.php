@@ -151,7 +151,23 @@ class LegalSecretaryController extends Controller
         $rules = [
             'legal_secretary_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
             'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
-            'legal_secretary_email' => 'required|string|email|unique:teams,lawyer_email',
+            'legal_secretary_email' => [
+        'nullable',
+        'string',
+        function ($attribute, $value, $fail) {
+           if (!empty($value) && $value != 'undefined') {
+                $validator = Validator::make(
+                    [$attribute => $value],
+                    [$attribute => 'email|unique:teams,lawyer_email']
+                );
+
+                if ($validator->fails()) {
+                    $fail($validator->errors()->first($attribute));
+                }
+            }
+        },
+    ],
+            // 'legal_secretary_email' => 'required|string|email|unique:teams,lawyer_email',
             'secretary_translation.name' => 'required|string',
             'secretary_translation.designation' => 'required|string',
         ];
@@ -175,9 +191,14 @@ class LegalSecretaryController extends Controller
             $legalSecretary = new LegalSecretary();
             $lastData = LegalSecretary::orderBy('created_at','DESC')->first();
             
+            // if ($request->has('legal_secretary_email')) {
+            //     $legalSecretary->legal_secretary_email = $request->input('legal_secretary_email');
+            // }
+
             if ($request->has('legal_secretary_email')) {
-                $legalSecretary->legal_secretary_email = $request->input('legal_secretary_email');
-            }
+    $email = $request->input('legal_secretary_email');
+    $legalSecretary->legal_secretary_email = $email == 'undefined' ? null : $email;
+}
             
             if ($request->hasFile('legal_secretary_image')) {
                 $imagePath = $request->file('legal_secretary_image')->store('legal_secretary_images', 'public');
@@ -291,7 +312,23 @@ class LegalSecretaryController extends Controller
         $rules = [
             'legal_secretary_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
             'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
-            'legal_secretary_email' => 'nullable|string|email|unique:legal_secretaries,legal_secretary_email,' . $id,
+            'legal_secretary_email' => [
+    'nullable',
+    'string',
+    function ($attribute, $value, $fail) use ($id) {
+        if (!empty($value) && $value !== 'undefined') {
+            $validator = Validator::make(
+                [$attribute => $value],
+                [$attribute => 'email|unique:legal_secretaries,legal_secretary_email,' . $id]
+            );
+
+            if ($validator->fails()) {
+                $fail($validator->errors()->first($attribute));
+            }
+        }
+    },
+],
+            // 'legal_secretary_email' => 'nullable|string|email|unique:legal_secretaries,legal_secretary_email,' . $id,
             'secretary_translation.name' => 'nullable|string',
             'secretary_translation.designation' => 'nullable|string'
         ];
@@ -316,9 +353,14 @@ class LegalSecretaryController extends Controller
                 return response()->json(['status' => 'false', 'message' => 'Legal secretary not found'], Response::HTTP_NOT_FOUND);
             }
 
-            if ($request->has('legal_secretary_email')) {
-                $secretary->legal_secretary_email = $request->input('legal_secretary_email');
-            }
+             if ($request->has('legal_secretary_email')) {
+    $email = $request->input('legal_secretary_email');
+    $secretary->legal_secretary_email = $email == 'undefined' ? null : $email;
+}
+
+            // if ($request->has('legal_secretary_email')) {
+            //     $secretary->legal_secretary_email = $request->input('legal_secretary_email');
+            // }
             
             if ($request->hasFile('legal_secretary_image')) {
                 // Delete old image if necessary
