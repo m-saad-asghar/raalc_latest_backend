@@ -430,8 +430,8 @@ class TeamController extends Controller
                 return response()->json(['status' => 'false', 'message' => 'Team member not found'], Response::HTTP_NOT_FOUND);
             }
 
-             if ($request->has('lawyer_email')) {
-    $email = $request->input('lawyer_email');
+             if ($request->has('team_translation[lawyer_email]')) {
+    $email = $request->input('team_translation[lawyer_email]');
     $team->lawyer_email = $email == 'undefined' ? null : $email;
 }
 
