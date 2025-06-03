@@ -175,14 +175,39 @@ class TeamController extends Controller
     public function store($lang , Request $request)
     {   
         // Define validation rules
+        // $rules = [
+        //     'number_of_cases' => 'nullable|numeric',
+        //     'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+        //     'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
+        //     // 'lawyer_email' => 'nullable|string|email|unique:teams,lawyer_email',
+        //       'lawyer_email' => 'nullable|string',
+        //     'team_translation.name' => 'required|string',
+        //     'team_translation.designation' => 'required|string',
+        // ];
+
         $rules = [
-            'number_of_cases' => 'nullable|numeric',
-            'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
-            'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
-            'lawyer_email' => 'nullable|string|email|unique:teams,lawyer_email',
-            'team_translation.name' => 'required|string',
-            'team_translation.designation' => 'required|string',
-        ];
+    'number_of_cases' => 'nullable|numeric',
+    'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+    'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
+    'lawyer_email' => [
+        'nullable',
+        'string',
+        function ($attribute, $value, $fail) {
+            if (!empty($value)) {
+                $validator = Validator::make(
+                    [$attribute => $value],
+                    [$attribute => 'email|unique:teams,lawyer_email']
+                );
+
+                if ($validator->fails()) {
+                    $fail($validator->errors()->first($attribute));
+                }
+            }
+        },
+    ],
+    'team_translation.name' => 'required|string',
+    'team_translation.designation' => 'required|string',
+];
     
         // Create a validator instance with the request data and rules
         $validator = Validator::make($request->all(), $rules);
