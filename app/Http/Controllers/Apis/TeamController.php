@@ -360,20 +360,50 @@ class TeamController extends Controller
     public function update($id, $lang, Request $request)
     {
         // Define validation rules
+        // $rules = [
+        //     'number_of_cases' => 'nullable|numeric',
+        //     'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+        //     'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
+        //     'lawyer_email' => 'nullable|string|email|unique:teams,lawyer_email,' . $id,
+        //     'team_translation.name' => 'nullable|string',
+        //     'team_translation.designation' => 'nullable|string',
+        //     'team_translation.detail' => 'nullable|string',
+        //     'team_translation.expertise' => 'nullable|array',
+        //     'team_translation.educations' => 'nullable|array',
+        //     'team_translation.skills' => 'nullable|array',
+        //     'team_translation.memberships' => 'nullable|array',
+        //     'team_translation.practice_areas' => 'nullable|array',
+        // ];
+
         $rules = [
-            'number_of_cases' => 'nullable|numeric',
-            'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
-            'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
-            'lawyer_email' => 'nullable|string|email|unique:teams,lawyer_email,' . $id,
-            'team_translation.name' => 'nullable|string',
-            'team_translation.designation' => 'nullable|string',
-            'team_translation.detail' => 'nullable|string',
-            'team_translation.expertise' => 'nullable|array',
-            'team_translation.educations' => 'nullable|array',
-            'team_translation.skills' => 'nullable|array',
-            'team_translation.memberships' => 'nullable|array',
-            'team_translation.practice_areas' => 'nullable|array',
-        ];
+    'number_of_cases' => 'nullable|numeric',
+    'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
+    'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
+    'lawyer_email' => [
+        'nullable',
+        'string',
+        function ($attribute, $value, $fail) use ($id) {
+            if (!empty($value)) {
+                $validator = Validator::make(
+                    [$attribute => $value],
+                    [$attribute => "email|unique:teams,lawyer_email,$id"]
+                );
+
+                if ($validator->fails()) {
+                    $fail($validator->errors()->first($attribute));
+                }
+            }
+        },
+    ],
+    'team_translation.name' => 'nullable|string',
+    'team_translation.designation' => 'nullable|string',
+    'team_translation.detail' => 'nullable|string',
+    'team_translation.expertise' => 'nullable|array',
+    'team_translation.educations' => 'nullable|array',
+    'team_translation.skills' => 'nullable|array',
+    'team_translation.memberships' => 'nullable|array',
+    'team_translation.practice_areas' => 'nullable|array',
+];
 
         // Create a validator instance with the request data and rules
         $validator = Validator::make($request->all(), $rules);
