@@ -384,7 +384,7 @@ class TeamController extends Controller
     'number_of_cases' => 'nullable|numeric',
     'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
     'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
-    'lawyer_email' => [
+    'team_translation[lawyer_email]' => [
         'nullable',
         'string',
         function ($attribute, $value, $fail) use ($id) {
