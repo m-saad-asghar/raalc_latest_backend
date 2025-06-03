@@ -193,7 +193,7 @@ class TeamController extends Controller
         'nullable',
         'string',
         function ($attribute, $value, $fail) {
-            if (!empty($value)) {
+           if (!empty($value) && $value != 'undefined') {
                 $validator = Validator::make(
                     [$attribute => $value],
                     [$attribute => 'email|unique:teams,lawyer_email']
