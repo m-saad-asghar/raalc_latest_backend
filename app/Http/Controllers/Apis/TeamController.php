@@ -179,7 +179,7 @@ class TeamController extends Controller
             'number_of_cases' => 'nullable|numeric',
             'lawyer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp',
             'qr_code_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
-            'lawyer_email' => 'required|string|email|unique:teams,lawyer_email',
+            'lawyer_email' => 'nullable|string|email|unique:teams,lawyer_email',
             'team_translation.name' => 'required|string',
             'team_translation.designation' => 'required|string',
         ];
