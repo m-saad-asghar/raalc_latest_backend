@@ -388,7 +388,7 @@ class TeamController extends Controller
         'nullable',
         'string',
         function ($attribute, $value, $fail) use ($id) {
-            if (!empty($value)) {
+           if (!empty($value) && $value != 'undefined') {
                 $validator = Validator::make(
                     [$attribute => $value],
                     [$attribute => "email|unique:teams,lawyer_email,$id"]
@@ -430,9 +430,14 @@ class TeamController extends Controller
                 return response()->json(['status' => 'false', 'message' => 'Team member not found'], Response::HTTP_NOT_FOUND);
             }
 
-            if ($request->has('lawyer_email')) {
-                $team->lawyer_email = $request->input('lawyer_email');
-            }
+             if ($request->has('lawyer_email')) {
+    $email = $request->input('lawyer_email');
+    $team->lawyer_email = $email == 'undefined' ? null : $email;
+}
+
+            // if ($request->has('lawyer_email')) {
+            //     $team->lawyer_email = $request->input('lawyer_email');
+            // }
             
             if ($request->has('number_of_cases')) {
                 $team->number_of_cases = $request->input('number_of_cases');
