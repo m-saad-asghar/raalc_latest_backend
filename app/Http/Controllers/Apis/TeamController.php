@@ -227,10 +227,15 @@ class TeamController extends Controller
             // Insert into team table
             $team = new Team();
             $lastData = Team::orderBy('order_number','DESC')->first();
-            
+
             if ($request->has('lawyer_email')) {
-                $team->lawyer_email = $request->input('lawyer_email');
-            }
+    $email = $request->input('lawyer_email');
+    $team->lawyer_email = $email == 'undefined' ? null : $email;
+}
+            
+            // if ($request->has('lawyer_email')) {
+            //     $team->lawyer_email = $request->input('lawyer_email');
+            // }
             
             if ($request->has('number_of_cases')) {
                 $team->number_of_cases = $request->input('number_of_cases');
