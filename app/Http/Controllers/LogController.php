@@ -25,10 +25,23 @@ class LogController extends Controller
                 }
             }
 
+            if (empty($compaignSource) && $request->has('page_url')) {
+                $parsedUrl = parse_url($request->page_url);
+            
+                if (isset($parsedUrl['query'])) {
+                    parse_str($parsedUrl['query'], $queryParams);
+            
+                    if (isset($queryParams['utm_source'])) {
+                        $compaignSource = $queryParams['utm_source'];
+                    }
+                }
+            }
+
             DB::table('logs')->insert([
                 'page_url'   => $request->page_url,
                 'origin'     => $request->origin,
                 'ad_number'  => $adNumber ?? '',
+                'compaign_source'  => $compaignSource ?? '',
                 // 'ad_number' => $request->ad_number ?? '',
                 'source'     => $request->source,
                 'type'     => $request->type,
