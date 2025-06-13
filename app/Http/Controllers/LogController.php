@@ -102,6 +102,7 @@ class LogController extends Controller
         // Retrieve all filters
         $origin = $request->get('origin');
         $ad_number = $request->get('ad_number');
+        $compaign_source = $request->get('compaign_source');
         $type = $request->get('type');
         $source = $request->get('source');
         $ipAddress = $request->get('ip_address');
@@ -135,6 +136,10 @@ class LogController extends Controller
             $query->where('ad_number', 'LIKE', "%$ad_number%");
         }
 
+         if ($compaign_source) {
+            $query->where('compaign_source', 'LIKE', "%$compaign_source%");
+        }
+
         if (is_array($dateRange) && count($dateRange) === 2) {
             $query->whereBetween('created_at', [
                 Carbon::parse($dateRange[0])->startOfDay(),
@@ -144,7 +149,7 @@ class LogController extends Controller
     
         $total = $query->count();
     
-        $data = $query->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number')
+        $data = $query->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source')
                       ->orderBy('created_at', 'desc')
                       ->offset($offset)
                       ->limit($perPage)
