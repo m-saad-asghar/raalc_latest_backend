@@ -226,7 +226,7 @@ $sourceCounts = DB::table('logs')
     ->groupBy('compaign_source');
 
 $organicCount = DB::table('logs')
-    ->select(DB::raw('NULL as compaign_source'), DB::raw('count(*) as total'))
+    ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
     ->where(function($query) {
         $query->whereNull('compaign_source')
               ->orWhere('compaign_source', '');
