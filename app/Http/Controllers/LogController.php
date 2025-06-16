@@ -96,72 +96,143 @@ class LogController extends Controller
 
     public function getLogs(Request $request)
     {
+        // $perPage = $request->get('per_page', 15);
+        // $currentPage = $request->get('page', 1);
+        // $offset = ($currentPage - 1) * $perPage;
+        // $origin = $request->get('origin');
+        // $ad_number = $request->get('ad_number');
+        // $compaign_source = $request->get('compaign_source');
+        // $type = $request->get('type');
+        // $source = $request->get('source');
+        // $ipAddress = $request->get('ip_address');
+        // $pageUrl = $request->get('page_url');
+        // $dateRange = $request->get('date_range');
+        // $query = DB::table('logs');
+    
+        // if ($origin) {
+        //     $query->where('origin', $origin);
+        // }
+    
+        // if ($type) {
+        //     $query->where('type', $type);
+        // }
+    
+        // if ($source) {
+        //     $query->where('source', $source);
+        // }
+    
+        // if ($ipAddress) {
+        //     $query->where('ip_address', 'LIKE', "%$ipAddress%");
+        // }
+    
+        // if ($pageUrl) {
+        //     $query->where('page_url', 'LIKE', "%$pageUrl%");
+        // }
+
+        // if ($ad_number) {
+        //     $query->where('ad_number', 'LIKE', "%$ad_number%");
+        // }
+
+        //  if ($compaign_source) {
+        //     $query->where('compaign_source', 'LIKE', "%$compaign_source%");
+        // }
+
+        // if (is_array($dateRange) && count($dateRange) === 2) {
+        //     $query->whereBetween('created_at', [
+        //         Carbon::parse($dateRange[0])->startOfDay(),
+        //         Carbon::parse($dateRange[1])->endOfDay(),  
+        //     ]);
+        // }
+    
+        // $total = $query->count();
+    
+        // $data = $query->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source')
+        //               ->orderBy('created_at', 'desc')
+        //               ->offset($offset)
+        //               ->limit($perPage)
+        //               ->get();
+    
+        // return response()->json([
+        //     'current_page' => (int) $currentPage,
+        //     'per_page' => (int) $perPage,
+        //     'total' => $total,
+        //     'data' => $data,
+        // ]);
+
         $perPage = $request->get('per_page', 15);
-        $currentPage = $request->get('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
-    
-        // Retrieve all filters
-        $origin = $request->get('origin');
-        $ad_number = $request->get('ad_number');
-        $compaign_source = $request->get('compaign_source');
-        $type = $request->get('type');
-        $source = $request->get('source');
-        $ipAddress = $request->get('ip_address');
-        $pageUrl = $request->get('page_url');
-        $dateRange = $request->get('date_range');
-    
-        // Build the query
-        $query = DB::table('logs');
-    
-        if ($origin) {
-            $query->where('origin', $origin);
-        }
-    
-        if ($type) {
-            $query->where('type', $type);
-        }
-    
-        if ($source) {
-            $query->where('source', $source);
-        }
-    
-        if ($ipAddress) {
-            $query->where('ip_address', 'LIKE', "%$ipAddress%");
-        }
-    
-        if ($pageUrl) {
-            $query->where('page_url', 'LIKE', "%$pageUrl%");
-        }
+$currentPage = $request->get('page', 1);
+$offset = ($currentPage - 1) * $perPage;
+$origin = $request->get('origin');
+$ad_number = $request->get('ad_number');
+$compaign_source = $request->get('compaign_source');
+$type = $request->get('type');
+$source = $request->get('source');
+$ipAddress = $request->get('ip_address');
+$pageUrl = $request->get('page_url');
+$dateRange = $request->get('date_range');
 
-        if ($ad_number) {
-            $query->where('ad_number', 'LIKE', "%$ad_number%");
-        }
+$query = DB::table('logs');
 
-         if ($compaign_source) {
-            $query->where('compaign_source', 'LIKE', "%$compaign_source%");
-        }
+if ($origin) {
+    $query->where('origin', $origin);
+}
+if ($type) {
+    $query->where('type', $type);
+}
+if ($source) {
+    $query->where('source', $source);
+}
+if ($ipAddress) {
+    $query->where('ip_address', 'LIKE', "%$ipAddress%");
+}
+if ($pageUrl) {
+    $query->where('page_url', 'LIKE', "%$pageUrl%");
+}
+if ($ad_number) {
+    $query->where('ad_number', 'LIKE', "%$ad_number%");
+}
+if ($compaign_source) {
+    $query->where('compaign_source', 'LIKE', "%$compaign_source%");
+}
+if (is_array($dateRange) && count($dateRange) === 2) {
+    $query->whereBetween('created_at', [
+        Carbon::parse($dateRange[0])->startOfDay(),
+        Carbon::parse($dateRange[1])->endOfDay(),
+    ]);
+}
 
-        if (is_array($dateRange) && count($dateRange) === 2) {
-            $query->whereBetween('created_at', [
-                Carbon::parse($dateRange[0])->startOfDay(),
-                Carbon::parse($dateRange[1])->endOfDay(),  
-            ]);
-        }
-    
-        $total = $query->count();
-    
-        $data = $query->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source')
-                      ->orderBy('created_at', 'desc')
-                      ->offset($offset)
-                      ->limit($perPage)
-                      ->get();
-    
-        return response()->json([
-            'current_page' => (int) $currentPage,
-            'per_page' => (int) $perPage,
-            'total' => $total,
-            'data' => $data,
-        ]);
+// Clone query for filtered count
+$total = (clone $query)->count();
+
+// Data for pagination
+$data = (clone $query)
+    ->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source')
+    ->orderBy('created_at', 'desc')
+    ->offset($offset)
+    ->limit($perPage)
+    ->get();
+
+// Totals by specific compaign sources
+$sourceCounts = DB::table('logs')
+    ->select('compaign_source', DB::raw('count(*) as total'))
+    ->whereIn('compaign_source', [
+        'Google_Ads',
+        'gbp',
+        'chatgpt.com',
+        'clutch.co',
+        'Facebook',
+        'Instagram'
+    ])
+    ->groupBy('compaign_source')
+    ->pluck('total', 'compaign_source');
+
+return response()->json([
+    'current_page' => (int) $currentPage,
+    'per_page' => (int) $perPage,
+    'total' => $total,
+    'data' => $data,
+    'source_summary' => $sourceCounts,
+]);
     }
 
     public function getLogsLatestRecord(Request $request)
