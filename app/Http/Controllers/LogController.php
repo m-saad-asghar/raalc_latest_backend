@@ -168,15 +168,20 @@ class LogController extends Controller
         })
         ->groupBy('compaign_source');
 
-   $organicCount = DB::table('logs')
+  $organicCount = DB::table('logs')
     ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
     ->where(function ($query) {
         $query->whereNull('page_url')
               ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
     })
+    ->where(function ($query) {
+        $query->whereNull('compaign_source')
+              ->orWhere('compaign_source', '');
+    })
     ->where(function ($query) use ($baseQuery) {
         $baseQuery($query);
     });
+
 
     $combined = $sourceCounts
         ->unionAll($organicCount)
