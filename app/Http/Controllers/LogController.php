@@ -223,15 +223,29 @@ $sourceCounts = DB::table('logs')
         'Facebook',
         'Instagram'
     ])
-    ->groupBy('compaign_source')
-    ->pluck('total', 'compaign_source');
+    ->groupBy('compaign_source');
+
+$organicCount = DB::table('logs')
+    ->select(DB::raw('NULL as compaign_source'), DB::raw('count(*) as total'))
+    ->where(function($query) {
+        $query->whereNull('compaign_source')
+              ->orWhere('compaign_source', '');
+    });
+
+$combined = $sourceCounts
+    ->unionAll($organicCount)
+    ->get()
+    ->mapWithKeys(function ($item) {
+        $key = $item->compaign_source ?? 'organic';
+        return [$key => $item->total];
+    });
 
 return response()->json([
     'current_page' => (int) $currentPage,
     'per_page' => (int) $perPage,
     'total' => $total,
     'data' => $data,
-    'source_summary' => $sourceCounts,
+    'source_summary' => $combined,
 ]);
     }
 
