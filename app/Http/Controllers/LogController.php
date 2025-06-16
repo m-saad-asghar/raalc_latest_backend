@@ -96,69 +96,6 @@ class LogController extends Controller
 
     public function getLogs(Request $request)
     {
-        // $perPage = $request->get('per_page', 15);
-        // $currentPage = $request->get('page', 1);
-        // $offset = ($currentPage - 1) * $perPage;
-        // $origin = $request->get('origin');
-        // $ad_number = $request->get('ad_number');
-        // $compaign_source = $request->get('compaign_source');
-        // $type = $request->get('type');
-        // $source = $request->get('source');
-        // $ipAddress = $request->get('ip_address');
-        // $pageUrl = $request->get('page_url');
-        // $dateRange = $request->get('date_range');
-        // $query = DB::table('logs');
-    
-        // if ($origin) {
-        //     $query->where('origin', $origin);
-        // }
-    
-        // if ($type) {
-        //     $query->where('type', $type);
-        // }
-    
-        // if ($source) {
-        //     $query->where('source', $source);
-        // }
-    
-        // if ($ipAddress) {
-        //     $query->where('ip_address', 'LIKE', "%$ipAddress%");
-        // }
-    
-        // if ($pageUrl) {
-        //     $query->where('page_url', 'LIKE', "%$pageUrl%");
-        // }
-
-        // if ($ad_number) {
-        //     $query->where('ad_number', 'LIKE', "%$ad_number%");
-        // }
-
-        //  if ($compaign_source) {
-        //     $query->where('compaign_source', 'LIKE', "%$compaign_source%");
-        // }
-
-        // if (is_array($dateRange) && count($dateRange) === 2) {
-        //     $query->whereBetween('created_at', [
-        //         Carbon::parse($dateRange[0])->startOfDay(),
-        //         Carbon::parse($dateRange[1])->endOfDay(),  
-        //     ]);
-        // }
-    
-        // $total = $query->count();
-    
-        // $data = $query->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source')
-        //               ->orderBy('created_at', 'desc')
-        //               ->offset($offset)
-        //               ->limit($perPage)
-        //               ->get();
-    
-        // return response()->json([
-        //     'current_page' => (int) $currentPage,
-        //     'per_page' => (int) $perPage,
-        //     'total' => $total,
-        //     'data' => $data,
-        // ]);
-
         $perPage = $request->get('per_page', 15);
 $currentPage = $request->get('page', 1);
 $offset = ($currentPage - 1) * $perPage;
@@ -201,10 +138,8 @@ if (is_array($dateRange) && count($dateRange) === 2) {
     ]);
 }
 
-// Clone query for filtered count
 $total = (clone $query)->count();
 
-// Data for pagination
 $data = (clone $query)
     ->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source')
     ->orderBy('created_at', 'desc')
@@ -212,7 +147,33 @@ $data = (clone $query)
     ->limit($perPage)
     ->get();
 
-// Totals by specific compaign sources
+// $sourceCounts = DB::table('logs')
+//     ->select('compaign_source', DB::raw('count(*) as total'))
+//     ->whereIn('compaign_source', [
+//         'Google_Ads',
+//         'gbp',
+//         'chatgpt.com',
+//         'clutch.co',
+//         'Facebook',
+//         'Instagram'
+//     ])
+//     ->groupBy('compaign_source');
+
+// $organicCount = DB::table('logs')
+//     ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
+//     ->where(function($query) {
+//         $query->whereNull('compaign_source')
+//               ->orWhere('compaign_source', '');
+//     });
+
+// $combined = $sourceCounts
+//     ->unionAll($organicCount)
+//     ->get()
+//     ->mapWithKeys(function ($item) {
+//         $key = $item->compaign_source ?? 'organic';
+//         return [$key => $item->total];
+//     });
+
 $sourceCounts = DB::table('logs')
     ->select('compaign_source', DB::raw('count(*) as total'))
     ->whereIn('compaign_source', [
@@ -223,15 +184,29 @@ $sourceCounts = DB::table('logs')
         'Facebook',
         'Instagram'
     ])
+    ->when(is_array($dateRange) && count($dateRange) === 2, function ($query) use ($dateRange) {
+        $query->whereBetween('created_at', [
+            Carbon::parse($dateRange[0])->startOfDay(),
+            Carbon::parse($dateRange[1])->endOfDay()
+        ]);
+    })
     ->groupBy('compaign_source');
 
+// Then organic counts with same filter
 $organicCount = DB::table('logs')
     ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
     ->where(function($query) {
         $query->whereNull('compaign_source')
               ->orWhere('compaign_source', '');
+    })
+    ->when(is_array($dateRange) && count($dateRange) === 2, function ($query) use ($dateRange) {
+        $query->whereBetween('created_at', [
+            Carbon::parse($dateRange[0])->startOfDay(),
+            Carbon::parse($dateRange[1])->endOfDay()
+        ]);
     });
 
+// Combine results
 $combined = $sourceCounts
     ->unionAll($organicCount)
     ->get()
