@@ -107,6 +107,7 @@ class LogController extends Controller
     $ipAddress = $request->get('ip_address');
     $pageUrl = $request->get('page_url');
     $dateRange = $request->get('date_range');
+    $leadType = $request->get('lead_type');
 
     // Shared base query with all filters
     $baseQuery = function ($query) use ($origin, $type, $source, $ipAddress, $pageUrl, $ad_number, $compaign_source, $dateRange) {
@@ -131,6 +132,23 @@ class LogController extends Controller
         if ($compaign_source) {
             $query->where('compaign_source', 'LIKE', "%$compaign_source%");
         }
+     if ($leadType) {
+    if ($leadType == 'organic') {
+        $query->where(function ($query) {
+            $query->whereNull('page_url')
+                  ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
+        });
+    } elseif ($leadType === 'non_organic') {
+    $query->whereIn('compaign_source', [
+        'Google_Ads',
+        'gbp',
+        'chatgpt.com',
+        'clutch.co',
+        'Facebook',
+        'Instagram'
+    ]);
+}
+}
         if (is_array($dateRange) && count($dateRange) === 2) {
             $query->whereBetween('created_at', [
                 Carbon::parse($dateRange[0])->startOfDay(),
