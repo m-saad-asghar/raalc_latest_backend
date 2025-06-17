@@ -41,7 +41,7 @@ class LogController extends Controller
                 'page_url'   => $request->page_url,
                 'origin'     => $request->origin,
                 'ad_number'  => $adNumber ?? '',
-                'compaign_source'  => $compaignSource ?? 'test',
+                'compaign_source'  => $compaignSource ?? '',
                 // 'ad_number' => $request->ad_number ?? '',
                 'source'     => $request->source,
                 'type'     => $request->type,
@@ -135,18 +135,14 @@ class LogController extends Controller
      if ($leadType) {
     if ($leadType == 'organic') {
         $query->where(function ($query) {
-             $query->where('page_url', 'NOT LIKE', '%utm_campaign%');
-             $query->where('page_url', 'NOT LIKE', '%gad_campaignid%');
-            // $query->whereNull('page_url')
-            //       ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
-        });
+    $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
+          ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+});
     } elseif ($leadType == 'non_organic') {
-    $query->where(function ($query) {
-        $query->where('page_url', 'LIKE', '%utm_campaign%');
-        $query->orWhere('page_url', 'LIKE', '%gad_campaignid%');
-        // $query->whereNotNull('page_url')
-        //       ->where('page_url', 'LIKE', '%utm_campaign%');
-    });
+   $query->where(function ($query) {
+    $query->where('page_url', 'LIKE', '%utm_campaign%')
+          ->orWhere('page_url', 'LIKE', '%gad_campaignid%');
+});
 }
 }
         if (is_array($dateRange) && count($dateRange) === 2) {
@@ -189,8 +185,10 @@ class LogController extends Controller
   $organicCount = DB::table('logs')
     ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
     ->where(function ($query) {
-         $query->where('page_url', 'NOT LIKE', '%utm_campaign%');
-         $query->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+        $query->where(function ($query) {
+    $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
+          ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+});
         // $query->whereNull('page_url')
         //       ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
     })
