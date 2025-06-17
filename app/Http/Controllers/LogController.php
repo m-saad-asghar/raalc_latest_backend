@@ -110,7 +110,7 @@ class LogController extends Controller
     $leadType = $request->get('lead_type');
 
     // Shared base query with all filters
-    $baseQuery = function ($query) use ($origin, $type, $source, $ipAddress, $pageUrl, $ad_number, $compaign_source, $dateRange) {
+    $baseQuery = function ($query) use ($origin, $type, $source, $ipAddress, $pageUrl, $ad_number, $compaign_source, $dateRange, $leadType) {
         if ($origin) {
             $query->where('origin', $origin);
         }
@@ -138,7 +138,7 @@ class LogController extends Controller
             $query->whereNull('page_url')
                   ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
         });
-    } elseif ($leadType === 'non_organic') {
+    } elseif ($leadType == 'non_organic') {
     $query->whereIn('compaign_source', [
         'Google_Ads',
         'gbp',
