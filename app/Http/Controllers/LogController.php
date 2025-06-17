@@ -171,9 +171,9 @@ class LogController extends Controller
         ->select('compaign_source', DB::raw('count(*) as total'))
         ->whereIn('compaign_source', [
             'Google_Ads',
-            // 'gbp',
-            // 'chatgpt.com',
-            // 'clutch.co',
+            'gbp',
+            'chatgpt.com',
+            'clutch.co',
             'Facebook',
             'Instagram'
         ])
