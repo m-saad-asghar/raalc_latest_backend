@@ -168,13 +168,19 @@ class LogController extends Controller
 
     // Source summary
     $sourceCounts = DB::table('logs')
-    ->select('compaign_source', DB::raw('count(*) as total'))
-    ->whereNotNull('page_url')
-    ->where('page_url', 'LIKE', '%utm_campaign%')
-    ->where(function ($query) use ($baseQuery) {
-        $baseQuery($query);
-    })
-    ->groupBy('compaign_source');
+        ->select('compaign_source', DB::raw('count(*) as total'))
+        ->whereIn('compaign_source', [
+            'Google_Ads',
+            'gbp',
+            'chatgpt.com',
+            'clutch.co',
+            'Facebook',
+            'Instagram'
+        ])
+        ->where(function ($query) use ($baseQuery) {
+            $baseQuery($query);
+        })
+        ->groupBy('compaign_source');
 
   $organicCount = DB::table('logs')
     ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
