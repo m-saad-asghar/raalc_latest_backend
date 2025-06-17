@@ -135,13 +135,13 @@ class LogController extends Controller
      if ($leadType) {
     if ($leadType == 'organic') {
         $query->where(function ($query) {
-    $query->where('page_url', 'NOT LIKE', '%utm_campaign%');
-        //   ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+    $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
+          ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
 });
     } elseif ($leadType == 'non_organic') {
    $query->where(function ($query) {
-    $query->where('page_url', 'LIKE', '%utm_campaign%');
-        //   ->orWhere('page_url', 'LIKE', '%gad_campaignid%');
+    $query->where('page_url', 'LIKE', '%utm_campaign%')
+          ->orWhere('page_url', 'LIKE', '%gad_campaignid%');
 });
 }
 }
@@ -186,8 +186,8 @@ class LogController extends Controller
     ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
     ->where(function ($query) {
         $query->where(function ($query) {
-    $query->where('page_url', 'NOT LIKE', '%utm_campaign%');
-        //   ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+    $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
+          ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
 });
         // $query->whereNull('page_url')
         //       ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
