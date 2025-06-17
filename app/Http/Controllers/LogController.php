@@ -138,7 +138,7 @@ class LogController extends Controller
             $query->whereNull('page_url')
                   ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
         });
-    } elseif ($leadType === 'non_organic') {
+    } elseif ($leadType == 'non_organic') {
     $query->where(function ($query) {
         $query->whereNotNull('page_url')
               ->where('page_url', 'LIKE', '%utm_campaign%');
@@ -171,9 +171,9 @@ class LogController extends Controller
         ->select('compaign_source', DB::raw('count(*) as total'))
         ->whereIn('compaign_source', [
             'Google_Ads',
-            'gbp',
-            'chatgpt.com',
-            'clutch.co',
+            // 'gbp',
+            // 'chatgpt.com',
+            // 'clutch.co',
             'Facebook',
             'Instagram'
         ])
@@ -188,10 +188,10 @@ class LogController extends Controller
         $query->whereNull('page_url')
               ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
     })
-    ->where(function ($query) {
-        $query->whereNull('compaign_source')
-              ->orWhere('compaign_source', '');
-    })
+    // ->where(function ($query) {
+    //     $query->whereNull('compaign_source')
+    //           ->orWhere('compaign_source', '');
+    // })
     ->where(function ($query) use ($baseQuery) {
         $baseQuery($query);
     });
