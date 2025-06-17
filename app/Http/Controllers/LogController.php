@@ -25,7 +25,7 @@ class LogController extends Controller
                 }
             }
 
-            if (empty($compaignSource) && $request->has('page_url')) {
+            if ($request->has('page_url')) {
                 $parsedUrl = parse_url($request->page_url);
             
                 if (isset($parsedUrl['query'])) {
