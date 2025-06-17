@@ -136,7 +136,7 @@ class LogController extends Controller
     if ($leadType == 'organic') {
         $query->where(function ($query) {
     $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
-          ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+          ->orWhere('page_url', 'NOT LIKE', '%gad_campaignid%');
 });
     } elseif ($leadType == 'non_organic') {
    $query->where(function ($query) {
@@ -187,7 +187,7 @@ class LogController extends Controller
     ->where(function ($query) {
         $query->where(function ($query) {
     $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
-          ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+          ->orWhere('page_url', 'NOT LIKE', '%gad_campaignid%');
 });
         // $query->whereNull('page_url')
         //       ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
