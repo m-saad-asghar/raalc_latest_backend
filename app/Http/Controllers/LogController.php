@@ -206,7 +206,7 @@ class LogController extends Controller
             'Google_Ads',
             'gbp',
             'chatgpt.com',
-            'clutch.co',
+            'Bing_Ads',
             'Facebook',
             'Instagram'
         ])
