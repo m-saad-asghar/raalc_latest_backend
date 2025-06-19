@@ -50,6 +50,7 @@ Route::any('save_logs', [LogController::class, 'saveLogs'])->name('saveLogs');
 Route::get('get_logs', [LogController::class, 'getLogs'])->name('getLogs');
 Route::get('get_logs_latest_record', [LogController::class, 'getLogsLatestRecord'])->name('getLogsLatestRecord');
 Route::post('get_ad_name', [LogController::class, 'getAdName'])->name('getAdName');
+Route::get('get_ads_options', [LogController::class, 'getAdsOptions'])->name('getAdsOptions');
 
 // Send OTP to user
 Route::post('sendOtp', [OtpController::class, 'sendOtp']);

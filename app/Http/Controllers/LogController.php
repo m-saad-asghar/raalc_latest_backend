@@ -9,6 +9,23 @@ use Carbon\Carbon;
 
 class LogController extends Controller
 {
+    public function getAdsOptions(Request $request) {
+        $campaignOptions = DB::table('compaigns')
+        ->select('name', 'number')
+        ->get();
+
+        if($campaignOptions) {
+            return response()->json([
+                'status'     => 1,
+                'ad_name'    =>  $campaignOptions,
+            ], Response::HTTP_OK);
+        }else {
+            return response()->json([
+                'status'     => 0,
+            ], Response::HTTP_OK);
+        }
+    }
+
     public function getAdName(Request $request)
     {
      $adNumber = $request->ad_number;
