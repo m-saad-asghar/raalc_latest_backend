@@ -59,33 +59,16 @@ class LogController extends Controller
             }
 
             if (empty($compaignSource) && $request->has('page_url')) {
-    // Ensure we get the full URL without fragment (ignoring the part after #)
-    $parsedUrl = parse_url($request->page_url);
-    
-    // Check if there is a query string in the URL
-    if (isset($parsedUrl['query'])) {
-        // Parse the query string into an array of parameters
-        parse_str($parsedUrl['query'], $queryParams);
-        
-        // Check if 'utm_source' exists in the query parameters
-        if (isset($queryParams['utm_source'])) {
-            $compaignSource = $queryParams['utm_source'];
-        }
-    }
-}
-
-
-            // if (empty($compaignSource) && $request->has('page_url')) {
-            //     $parsedUrl = parse_url($request->page_url);
+                $parsedUrl = parse_url($request->page_url);
             
-            //     if (isset($parsedUrl['query'])) {
-            //         parse_str($parsedUrl['query'], $queryParams);
+                if (isset($parsedUrl['query'])) {
+                    parse_str($parsedUrl['query'], $queryParams);
             
-            //         if (isset($queryParams['utm_source'])) {
-            //             $compaignSource = $queryParams['utm_source'];
-            //         }
-            //     }
-            // }
+                    if (isset($queryParams['utm_source'])) {
+                        $compaignSource = $queryParams['utm_source'];
+                    }
+                }
+            }
 
             DB::table('logs')->insert([
                 'page_url'   => $request->page_url,
