@@ -9,6 +9,22 @@ use Carbon\Carbon;
 
 class LogController extends Controller
 {
+    public function getAdName(Request $request)
+    {
+     $adNumber = $request->ad_number;
+     $data = DB::table("compaigns")->where("number", $adNumber)->first(["name"]);
+     if($data) {
+         return response()->json([
+                'status'     => 1,
+                'ad_name'    =>  $data -> name,
+            ], Response::HTTP_OK);
+     }else {
+       return response()->json([
+                'status'     => 0,
+                'message'   => "Ad Not Found"
+            ], Response::HTTP_OK);
+     }
+    }
     public function saveLog(Request $request)
     {
         try {
