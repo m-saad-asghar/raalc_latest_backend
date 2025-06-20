@@ -168,13 +168,31 @@ class LogController extends Controller
      if ($leadType) {
     if ($leadType == 'organic') {
         $query->where(function ($query) {
-    $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
+    $query
+    // ->where('page_url', 'NOT LIKE', '%gclid%')
+    //       ->where('page_url', 'NOT LIKE', '%gad_source%')
+    //       ->where('page_url', 'NOT LIKE', '%fbclid%')
+    //       ->where('page_url', 'NOT LIKE', '%msclkid%')
+    //       ->where('page_url', 'NOT LIKE', '%yclid%')
+          ->where('page_url', 'NOT LIKE', '%utm_campaign%')
           ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+        //   ->where('page_url', 'NOT LIKE', '%adgroupid%')
+        //   ->where('page_url', 'NOT LIKE', '%li_fat_id%')
+        //   ->where('page_url', 'NOT LIKE', '%wbaid%');
 });
     } elseif ($leadType == 'non_organic') {
    $query->where(function ($query) {
-    $query->where('page_url', 'LIKE', '%utm_campaign%')
+    $query
+    ->where('page_url', 'LIKE', '%utm_campaign%')
           ->orWhere('page_url', 'LIKE', '%gad_campaignid%');
+        //    ->orWhere('page_url', 'LIKE', '%gclid%')
+            // ->orWhere('page_url', 'LIKE', '%gad_source%')
+            //  ->orWhere('page_url', 'LIKE', '%fbclid%')
+            //   ->orWhere('page_url', 'LIKE', '%msclkid%')
+            //    ->orWhere('page_url', 'LIKE', '%yclid%')
+                // ->orWhere('page_url', 'LIKE', '%adgroupid%');
+                // ->orWhere('page_url', 'LIKE', '%li_fat_id%')
+                //  ->orWhere('page_url', 'LIKE', '%wbaid%');
 });
 }
 }
@@ -219,8 +237,17 @@ class LogController extends Controller
     ->select(DB::raw("'organic' as compaign_source"), DB::raw('count(*) as total'))
     ->where(function ($query) {
         $query->where(function ($query) {
-    $query->where('page_url', 'NOT LIKE', '%utm_campaign%')
+     $query
+    //  ->where('page_url', 'NOT LIKE', '%gclid%')
+        //   ->where('page_url', 'NOT LIKE', '%gad_source%')
+        //   ->where('page_url', 'NOT LIKE', '%fbclid%')
+        //   ->where('page_url', 'NOT LIKE', '%msclkid%')
+        //   ->where('page_url', 'NOT LIKE', '%yclid%')
+          ->where('page_url', 'NOT LIKE', '%utm_campaign%')
           ->where('page_url', 'NOT LIKE', '%gad_campaignid%');
+        //   ->where('page_url', 'NOT LIKE', '%adgroupid%');
+        //   ->where('page_url', 'NOT LIKE', '%wbaid%');
+        //   ->where('page_url', 'NOT LIKE', '%li_fat_id%');
 });
         // $query->whereNull('page_url')
         //       ->orWhere('page_url', 'NOT LIKE', '%utm_campaign%');
