@@ -226,7 +226,8 @@ class LogController extends Controller
             'chatgpt.com',
             'Bing_Ads',
             'Facebook',
-            'Instagram'
+            'Instagram',
+            'Linkedin'
         ])
         ->where(function ($query) use ($baseQuery) {
             $baseQuery($query);
