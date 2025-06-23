@@ -51,6 +51,8 @@ Route::get('get_logs', [LogController::class, 'getLogs'])->name('getLogs');
 Route::get('get_logs_latest_record', [LogController::class, 'getLogsLatestRecord'])->name('getLogsLatestRecord');
 Route::post('get_ad_name', [LogController::class, 'getAdName'])->name('getAdName');
 Route::get('get_ads_options', [LogController::class, 'getAdsOptions'])->name('getAdsOptions');
+Route::get('arabic_counter', [LogController::class, 'arabicCounter'])->name('arabicCounter');
+Route::get('landing_pages_counter', [LogController::class, 'landingPagesCounter'])->name('arabicCounter');
 
 // Send OTP to user
 Route::post('sendOtp', [OtpController::class, 'sendOtp']);

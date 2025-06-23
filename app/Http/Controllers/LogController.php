@@ -9,6 +9,49 @@ use Carbon\Carbon;
 
 class LogController extends Controller
 {
+   public function arabicCounter(Request $request) {
+    $arabic_counter = DB::table('arabic_counter')->first();
+
+    if ($arabic_counter) {
+        $newValue = ($arabic_counter->counter == 1) ? 0 : $arabic_counter->counter + 1;
+
+        DB::table('arabic_counter')
+            ->where('id', $arabic_counter->id)
+            ->update(['counter' => $newValue]);
+
+        return response()->json([
+            'status'  => 1,
+            'counter' => $arabic_counter->counter,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+        ], Response::HTTP_OK);
+    }
+}
+
+public function landingPagesCounter(Request $request) {
+    $landing_pages_counter = DB::table('landing_pages_counter')->first();
+
+    if ($landing_pages_counter) {
+        $newValue = ($landing_pages_counter->counter == 6) ? 0 : $landing_pages_counter->counter + 1;
+
+        DB::table('landing_pages_counter')
+            ->where('id', $landing_pages_counter->id)
+            ->update(['counter' => $newValue]);
+
+        return response()->json([
+            'status'  => 1,
+            'counter' => $landing_pages_counter->counter,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+        ], Response::HTTP_OK);
+    }
+}
+
+
     public function getAdsOptions(Request $request) {
         $campaignOptions = DB::table('compaigns')
         ->select('name', 'number')
