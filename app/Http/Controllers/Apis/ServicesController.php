@@ -65,7 +65,7 @@ class ServicesController extends Controller
     {
         try {
             // Retrieve all services
-            $servicesQuery = Service::orderBy('id', 'ASC');
+            $servicesQuery = Service::where("active", 1)->orderBy('id', 'ASC');
            
             $perPage = request()->input('per_page', $per_page);
             $services = $servicesQuery->paginate($perPage);
@@ -728,13 +728,10 @@ class ServicesController extends Controller
     
     public function destroyService($id)
     {
-        // Check if the user has super admin privileges
         if (!$this->user || !$this->user->isSuperAdmin()) {
             return response()->json(['status' => 'false', 'message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
-
-        // Retrieve and delete the department
-        DB::beginTransaction(); // Start transaction
+        DB::beginTransaction();
 
         try {
             $service = Service::find($id);
@@ -742,22 +739,22 @@ class ServicesController extends Controller
                 return response()->json(['status' => 'false', 'message' => 'Service not found'], Response::HTTP_NOT_FOUND);
             }
 
-            // Delete the department image if it exists
-            if ($service->sec_one_image) {
-                Storage::disk('public')->delete($service->sec_one_image);
-            }
+             $service->active = 0;
+             $service->save();
 
-            // Delete associated translations
-            ServiceTranslation::where('service_id', $id)->delete();
+            // if ($service->sec_one_image) {
+            //     Storage::disk('public')->delete($service->sec_one_image);
+            // }
 
-            // Delete the department record
-            $service->delete();
+            // ServiceTranslation::where('service_id', $id)->delete();
 
-            DB::commit(); // Commit transaction
+            // $service->delete();
+
+            DB::commit();
 
             return response()->json(['status' => 'true', 'message' => 'Service deleted successfully'], Response::HTTP_OK);
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback transaction on error
+            DB::rollBack();
             return response()->json(['status' => 'false', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
