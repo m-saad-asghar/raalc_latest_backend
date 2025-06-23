@@ -62,6 +62,7 @@ class TeamController extends Controller
             // $teamsQuery = Team::orderBy('order_number', 'ASC');
 
             $teamsQuery = Team::orderBy('order_number', 'ASC')
+                ->where('active', 1)
                   ->orderBy('slug', 'DESC');
                 
              // Implement pagination if $id is null
@@ -483,8 +484,7 @@ class TeamController extends Controller
 
    public function destroy($id)
     {
-        // Retrieve and delete the department
-        DB::beginTransaction(); // Start transaction
+        DB::beginTransaction();
 
         try {
             $team = Team::find($id);
@@ -492,22 +492,22 @@ class TeamController extends Controller
                 return response()->json(['status' => 'false', 'message' => 'Department not found'], Response::HTTP_NOT_FOUND);
             }
 
-            // Delete the department image if it exists
-            if ($team->lowyer_image) {
-                Storage::disk('public')->delete($team->lowyer_image);
-            }
+            $team->active = 0;
+            $team->save();
 
-            // Delete associated translations
-            TeamTranslation::where('team_id', $id)->delete();
+            // if ($team->lowyer_image) {
+            //     Storage::disk('public')->delete($team->lowyer_image);
+            // }
 
-            // Delete the department record
-            $team->delete();
+            // TeamTranslation::where('team_id', $id)->delete();
 
-            DB::commit(); // Commit transaction
+            // $team->delete();
+
+            DB::commit();
 
             return response()->json(['status' => 'true', 'message' => 'Team member deleted successfully'], Response::HTTP_OK);
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback transaction on error
+            DB::rollBack();
             return response()->json(['status' => 'false', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
