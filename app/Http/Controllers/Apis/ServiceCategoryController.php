@@ -332,6 +332,7 @@ class ServiceCategoryController extends Controller
             $dataArray  = array();
 
             $services = Service::orderByRaw('ISNULL(service_category_id), service_category_id ASC')
+                             ->where('active', 1)
                             ->orderBy('id', 'ASC')
                             ->get();
             
