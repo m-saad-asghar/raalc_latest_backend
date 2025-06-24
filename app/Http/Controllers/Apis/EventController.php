@@ -614,7 +614,7 @@ class EventController extends Controller
     {
         try {
 
-            $eventsQuery = Event::orderBy('date', 'DESC');
+            $eventsQuery = Event::where('active', 1)->orderBy('date', 'DESC');
             
             // Implement pagination
             $perPage = request()->input('per_page', $per_page);
