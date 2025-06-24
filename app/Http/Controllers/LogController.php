@@ -270,8 +270,7 @@ public function landingPagesCounter(Request $request) {
             'Bing_Ads',
             'Facebook',
             'Instagram',
-            'Linkedin',
-            'Email'
+            'Linkedin'
         ])
         ->where(function ($query) use ($baseQuery) {
             $baseQuery($query);
@@ -314,12 +313,17 @@ public function landingPagesCounter(Request $request) {
             return [$key => $item->total];
         });
 
+    $count_email = DB::table('logs')
+    ->where('origin', 'Email')
+    ->count();
+
     return response()->json([
         'current_page' => (int) $currentPage,
         'per_page' => (int) $perPage,
         'total' => $total,
         'data' => $data,
         'source_summary' => $combined,
+        'email_count' => $count_email
     ]);
 }
 
