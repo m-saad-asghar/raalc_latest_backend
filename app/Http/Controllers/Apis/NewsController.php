@@ -75,9 +75,9 @@ class NewsController extends Controller
         try {
 
             if(!empty($slug) && $slug != null){
-                $news = News::where('slug','!=',$slug)->orderBy("date","DESC")->limit(3)->get();
+                $news = News::where('slug','!=',$slug)->where("active", 1)->orderBy("date","DESC")->limit(3)->get();
             }else{
-                $newsQuery = News::orderBy('date', 'DESC');
+                $newsQuery = News::where("active", 1)->orderBy('date', 'DESC');
                 
                  // Implement pagination if $id is null
                 if ($limit == 0) {
@@ -555,14 +555,17 @@ class NewsController extends Controller
                 return response()->json(['message' => 'News data not found'], Response::HTTP_NOT_FOUND);
             }
 
-            if($news->images){
-                $extImage = explode(",",$news->images);
-                foreach($extImage as $eximg){
-                    Storage::disk('public')->delete($eximg);
-                }
-            }
+             $news->active = 0;
+             $news->save();
 
-            $news->delete();
+            // if($news->images){
+            //     $extImage = explode(",",$news->images);
+            //     foreach($extImage as $eximg){
+            //         Storage::disk('public')->delete($eximg);
+            //     }
+            // }
+
+            // $news->delete();
             return response()->json(['status' => 'true', 'message' => 'News deleted successfully'], Response::HTTP_OK);
             
         } catch (\Exception $ex) {
