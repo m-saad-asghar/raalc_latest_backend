@@ -70,9 +70,9 @@ class EventController extends Controller
         try {
 
             if (!empty($slug) && $slug != null) {
-                $eventsQuery = Event::where('slug', '!=', $slug)->orderBy('date', 'DESC');
+                $eventsQuery = Event::where('slug', '!=', $slug)->where('active', 1)->orderBy('date', 'DESC');
             } else {
-                $eventsQuery = Event::orderBy('date', 'DESC');
+                $eventsQuery = Event::where('active', 1)->orderBy('date', 'DESC');
             }
     
             // Implement pagination
@@ -498,14 +498,17 @@ class EventController extends Controller
                 return response()->json(['message' => 'Event data not found'], Response::HTTP_NOT_FOUND);
             }
 
-            if($event->images){
-                $extImage = explode(",",$event->images);
-                foreach($extImage as $eximg){
-                    Storage::disk('public')->delete($eximg);
-                }
-            }
+             $event->active = 0;
+             $event->save();
 
-            $event->delete();
+            // if($event->images){
+            //     $extImage = explode(",",$event->images);
+            //     foreach($extImage as $eximg){
+            //         Storage::disk('public')->delete($eximg);
+            //     }
+            // }
+
+            // $event->delete();
             return response()->json(['status' => 'true', 'message' => 'Event deleted successfully'], Response::HTTP_OK);
             
         } catch (\Exception $ex) {
