@@ -146,7 +146,7 @@ public function landingPagesCounter(Request $request) {
     {
         try {
             DB::table('logs')->insert([
-                'page_url'   => $request->page_url,
+                'page_url'   => $request->page_url ?? '',
                 'origin'     => $request->origin,
                 'ad_number' => $request->ad_number ?? '',
                 'compaign_source' => $request->compaign_source ?? '',
