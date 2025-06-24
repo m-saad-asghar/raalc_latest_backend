@@ -270,7 +270,8 @@ public function landingPagesCounter(Request $request) {
             'Bing_Ads',
             'Facebook',
             'Instagram',
-            'Linkedin'
+            'Linkedin',
+            'Email'
         ])
         ->where(function ($query) use ($baseQuery) {
             $baseQuery($query);
