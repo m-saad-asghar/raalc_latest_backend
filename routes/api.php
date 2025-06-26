@@ -24,6 +24,7 @@ use App\Http\Controllers\Apis\ElementController;
 use App\Http\Controllers\Apis\QuoteController;
 use App\Http\Controllers\Apis\CaseManagementController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\DeleteController;
 use App\Http\Controllers\Apis\NotificationController;
 
 Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
@@ -53,6 +54,8 @@ Route::post('get_ad_name', [LogController::class, 'getAdName'])->name('getAdName
 Route::get('get_ads_options', [LogController::class, 'getAdsOptions'])->name('getAdsOptions');
 Route::get('arabic_counter', [LogController::class, 'arabicCounter'])->name('arabicCounter');
 Route::get('landing_pages_counter', [LogController::class, 'landingPagesCounter'])->name('arabicCounter');
+Route::get('deleted_teams', [DeleteController::class, 'deletedTeams'])->name('deletedTeams');
+Route::post('recover_teams', [DeleteController::class, 'recoverTeams'])->name('recoverTeams');
 
 // Send OTP to user
 Route::post('sendOtp', [OtpController::class, 'sendOtp']);
