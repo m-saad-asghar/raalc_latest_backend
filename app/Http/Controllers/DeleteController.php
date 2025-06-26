@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 class DeleteController extends Controller
 {
      public function deletedTeams(Request $request) {
+        $perPage = $request->get('per_page', 15);
+    $currentPage = $request->get('page', 1);
+    $offset = ($currentPage - 1) * $perPage;
   $team = DB::table('teams')
     ->where('teams.active', 0)
     ->leftJoin('team_translations', 'team_translations.team_id', '=', 'teams.id')
@@ -22,6 +25,8 @@ class DeleteController extends Controller
         DB::raw('JSON_UNQUOTE(JSON_EXTRACT(MAX(team_translations.fields_value), "$.lawyer_email")) as lawyer_email')
     )
     ->groupBy('teams.id')
+     ->offset($offset)
+     ->limit($perPage)
     ->paginate();
 
 
@@ -30,6 +35,8 @@ class DeleteController extends Controller
         return response()->json([
             'status'  => 1,
             'team' => $team,
+            'current_page' => (int) $currentPage,
+            'per_page' => (int) $perPage,
         ], Response::HTTP_OK);
     }else {
         return response()->json([
@@ -38,6 +45,11 @@ class DeleteController extends Controller
     }
 }
 public function recoverTeams(Request $request) {
+
+    $perPage = $request->get('per_page', 15);
+    $currentPage = $request->get('page', 1);
+    $offset = ($currentPage - 1) * $perPage;
+    
     $id = $request->id;
 
     $teamExists = DB::table('teams')
@@ -62,11 +74,15 @@ public function recoverTeams(Request $request) {
                 DB::raw('JSON_UNQUOTE(JSON_EXTRACT(MAX(team_translations.fields_value), "$.lawyer_email")) as lawyer_email')
             )
             ->groupBy('teams.id')
+             ->offset($offset)
+             ->limit($perPage)
             ->get();
 
         return response()->json([
             'status' => 1,
             'team'   => $teams,
+            'current_page' => (int) $currentPage,
+            'per_page' => (int) $perPage,
         ], Response::HTTP_OK);
     } else {
         return response()->json([
