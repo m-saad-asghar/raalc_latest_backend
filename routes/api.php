@@ -60,6 +60,8 @@ Route::get('deleted_news', [DeleteController::class, 'deletedNews'])->name('dele
 Route::post('recover_news', [DeleteController::class, 'recoverNews'])->name('recoverNews');
 Route::get('deleted_services', [DeleteController::class, 'deletedServices'])->name('deletedServices');
 Route::post('recover_services', [DeleteController::class, 'recoverServices'])->name('recoverServices');
+Route::get('deleted_events', [DeleteController::class, 'deletedEvents'])->name('deletedEvents');
+Route::post('recover_events', [DeleteController::class, 'recoverEvents'])->name('recoverEvents');
 
 // Send OTP to user
 Route::post('sendOtp', [OtpController::class, 'sendOtp']);

@@ -8,6 +8,52 @@ use Illuminate\Http\Request;
 
 class DeleteController extends Controller
 {
+     public function deletedEvents(Request $request) {
+    $perPage = $request->get('per_page', 15);
+    $currentPage = $request->get('page', 1);
+    $offset = ($currentPage - 1) * $perPage;
+    $filterName = $request->get('name');
+
+    $query = DB::table('event')
+        ->where('event.active', 0)
+        ->leftJoin('event_translation', 'event_translation.event_id', '=', 'event.id')
+        ->select(
+            'event.id',
+            DB::raw('CONCAT("https://api.raalc.ae/storage/", MAX(event.images)) as images'),
+            DB::raw('MAX(event.updated_at) as updated_at'),
+            DB::raw('MAX(event.active) as active'),
+            DB::raw('JSON_UNQUOTE(JSON_EXTRACT(MAX(event_translation.field_values), "$.title")) as title'),
+             DB::raw('JSON_UNQUOTE(JSON_EXTRACT(MAX(event_translation.field_values), "$.author_name")) as author_name'),
+        )
+        ->groupBy('event.id');
+
+if (!empty($filterName)) {
+    $query->havingRaw(
+        'LOWER(JSON_UNQUOTE(JSON_EXTRACT(MAX(event_translation.field_values), "$.title"))) LIKE ?', 
+        ['%' . strtolower($filterName) . '%']
+    );
+}
+
+
+
+    $services = $query
+        ->offset($offset)
+        ->limit($perPage)
+        ->get();
+
+    if ($services) {
+        return response()->json([
+            'status'       => 1,
+            'services'         => $services,
+            'current_page' => (int) $currentPage,
+            'per_page'     => (int) $perPage,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+        ], Response::HTTP_OK);
+    }
+}
      public function deletedServices(Request $request) {
     $perPage = $request->get('per_page', 15);
     $currentPage = $request->get('page', 1);
@@ -213,6 +259,30 @@ public function recoverServices(Request $request) {
         return response()->json([
             'status' => 0,
             'message' => 'Services not found.'
+        ], Response::HTTP_OK);
+    }
+}
+
+public function recoverEvents(Request $request) {
+    
+    $id = $request->id;
+
+    $eventExists = DB::table('event')
+        ->where('id', $id)
+        ->first();
+
+    if ($eventExists) {
+        DB::table('event')
+            ->where('id', $id)
+            ->update(['active' => 1]);
+
+        return response()->json([
+            'status' => 1,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+            'message' => 'Event not found.'
         ], Response::HTTP_OK);
     }
 }
