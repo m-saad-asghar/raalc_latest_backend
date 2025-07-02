@@ -56,6 +56,8 @@ Route::get('arabic_counter', [LogController::class, 'arabicCounter'])->name('ara
 Route::get('landing_pages_counter', [LogController::class, 'landingPagesCounter'])->name('arabicCounter');
 Route::get('deleted_teams', [DeleteController::class, 'deletedTeams'])->name('deletedTeams');
 Route::post('recover_teams', [DeleteController::class, 'recoverTeams'])->name('recoverTeams');
+Route::get('deleted_news', [DeleteController::class, 'deletedNews'])->name('deletedNews');
+Route::post('recover_news', [DeleteController::class, 'recoverNews'])->name('recoverNews');
 
 // Send OTP to user
 Route::post('sendOtp', [OtpController::class, 'sendOtp']);
