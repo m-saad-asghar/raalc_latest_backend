@@ -8,6 +8,51 @@ use Illuminate\Http\Request;
 
 class DeleteController extends Controller
 {
+     public function deletedServices(Request $request) {
+    $perPage = $request->get('per_page', 15);
+    $currentPage = $request->get('page', 1);
+    $offset = ($currentPage - 1) * $perPage;
+    $filterName = $request->get('name');
+
+    $query = DB::table('services')
+        ->where('services.active', 0)
+        ->leftJoin('service_translations', 'service_translations.service_id', '=', 'services.id')
+        ->select(
+            'services.id',
+            DB::raw('CONCAT("https://api.raalc.ae/storage/", MAX(services.sec_one_image)) as images'),
+            DB::raw('MAX(services.updated_at) as updated_at'),
+            DB::raw('MAX(services.active) as active'),
+            DB::raw('JSON_UNQUOTE(JSON_EXTRACT(MAX(service_translations.translated_value), "$.sec_one_heading_one")) as heading'),
+        )
+        ->groupBy('services.id');
+
+if (!empty($filterName)) {
+    $query->havingRaw(
+        'LOWER(JSON_UNQUOTE(JSON_EXTRACT(MAX(service_translations.translated_value), "$.sec_one_heading_one"))) LIKE ?', 
+        ['%' . strtolower($filterName) . '%']
+    );
+}
+
+
+
+    $services = $query
+        ->offset($offset)
+        ->limit($perPage)
+        ->get();
+
+    if ($services) {
+        return response()->json([
+            'status'       => 1,
+            'services'         => $services,
+            'current_page' => (int) $currentPage,
+            'per_page'     => (int) $perPage,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+        ], Response::HTTP_OK);
+    }
+}
    public function deletedNews(Request $request) {
     $perPage = $request->get('per_page', 15);
     $currentPage = $request->get('page', 1);
@@ -128,11 +173,11 @@ public function recoverNews(Request $request) {
     
     $id = $request->id;
 
-    $teamExists = DB::table('news')
+    $newsExists = DB::table('news')
         ->where('id', $id)
         ->first();
 
-    if ($teamExists) {
+    if ($newsExists) {
         DB::table('news')
             ->where('id', $id)
             ->update(['active' => 1]);
@@ -144,6 +189,30 @@ public function recoverNews(Request $request) {
         return response()->json([
             'status' => 0,
             'message' => 'News not found.'
+        ], Response::HTTP_OK);
+    }
+}
+
+public function recoverServices(Request $request) {
+    
+    $id = $request->id;
+
+    $serviceExists = DB::table('services')
+        ->where('id', $id)
+        ->first();
+
+    if ($serviceExists) {
+        DB::table('services')
+            ->where('id', $id)
+            ->update(['active' => 1]);
+
+        return response()->json([
+            'status' => 1,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+            'message' => 'Services not found.'
         ], Response::HTTP_OK);
     }
 }

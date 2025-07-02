@@ -58,6 +58,8 @@ Route::get('deleted_teams', [DeleteController::class, 'deletedTeams'])->name('de
 Route::post('recover_teams', [DeleteController::class, 'recoverTeams'])->name('recoverTeams');
 Route::get('deleted_news', [DeleteController::class, 'deletedNews'])->name('deletedNews');
 Route::post('recover_news', [DeleteController::class, 'recoverNews'])->name('recoverNews');
+Route::get('deleted_services', [DeleteController::class, 'deletedServices'])->name('deletedServices');
+Route::post('recover_services', [DeleteController::class, 'recoverServices'])->name('recoverServices');
 
 // Send OTP to user
 Route::post('sendOtp', [OtpController::class, 'sendOtp']);
