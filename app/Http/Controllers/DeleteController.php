@@ -36,15 +36,15 @@ if (!empty($filterName)) {
 
 
 
-    $services = $query
+    $events = $query
         ->offset($offset)
         ->limit($perPage)
         ->get();
 
-    if ($services) {
+    if ($events) {
         return response()->json([
             'status'       => 1,
-            'services'         => $services,
+            'events'         => $events,
             'current_page' => (int) $currentPage,
             'per_page'     => (int) $perPage,
         ], Response::HTTP_OK);
