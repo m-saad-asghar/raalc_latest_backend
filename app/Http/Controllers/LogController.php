@@ -184,9 +184,10 @@ public function landingPagesCounter(Request $request) {
     $pageUrl = $request->get('page_url');
     $dateRange = $request->get('date_range');
     $leadType = $request->get('lead_type');
+    $id = $request->get('id');
 
     // Shared base query with all filters
-    $baseQuery = function ($query) use ($origin, $type, $source, $ipAddress, $pageUrl, $ad_number, $compaign_source, $dateRange, $leadType) {
+    $baseQuery = function ($query) use ($origin, $type, $source, $ipAddress, $pageUrl, $ad_number, $compaign_source, $dateRange, $leadType, $id) {
         if ($origin) {
             $query->where('origin', $origin);
         }
@@ -201,6 +202,9 @@ public function landingPagesCounter(Request $request) {
         }
         if ($pageUrl) {
             $query->where('page_url', 'LIKE', "%$pageUrl%");
+        }
+         if ($id) {
+            $query->where('id', 'LIKE', "%$id%");
         }
         if ($ad_number) {
             $query->where('ad_number', 'LIKE', "%$ad_number%");
