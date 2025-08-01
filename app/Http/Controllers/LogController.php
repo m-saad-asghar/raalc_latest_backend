@@ -98,6 +98,10 @@ public function landingPagesCounter(Request $request) {
                     if (isset($queryParams['gad_campaignid'])) {
                         $adNumber = $queryParams['gad_campaignid'];
                     }
+
+                      elseif (isset($queryParams['utm_campaign'])) {
+        $adNumber = $queryParams['utm_campaign'];
+    }
                 }
             }
 
