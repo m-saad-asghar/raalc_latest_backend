@@ -101,4 +101,35 @@ class AppController extends Controller
             'user' => $user
         ], 201);
     }
+
+     public function login(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['status' => 0, 'message' => 'Incorrect Email'], 401);
+        }
+        if (Hash::check($request->password, $user->password)) {
+             $otp = $this->generateOTP();
+              Mail::to($request->email)->send(new SendOtpMail($otp));   
+               return response()->json([
+            'status' => 1,
+            'otp' => $otp
+        ], 201);
+        } else {
+            return response()->json(['status' => 0, 'message' => 'Incorrect Password'], 401);
+        }
+    }
+
+    public function token_for_login(Request $request)
+    {
+        $user = User::where("email", $request->email)->first();
+        $token = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'message' => 'User login successfully',
+            'status' => 1,
+            'token' => $token,
+            'user' => $user
+        ], 201);
+    }
 }

@@ -67,6 +67,8 @@ Route::post('recover_events', [DeleteController::class, 'recoverEvents'])->name(
 Route::prefix('app')->group(function () {
     Route::post('/register', [AppController::class, 'register']);
     Route::post('/save_register_data', [AppController::class, 'save_register_data']);
+    Route::post('/login', [AppController::class, 'login']);
+    Route::post('/token_for_login', [AppController::class, 'token_for_login']);
 });
 
 // Send OTP to user
