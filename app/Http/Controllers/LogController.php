@@ -443,9 +443,20 @@ public function landingPagesCounter(Request $request) {
 
     public function getLogsLatestRecord(Request $request)
     {
-        $latestLog = DB::table('logs')
-        ->orderBy('created_at', 'desc')
-        ->first();
+
+$latestLog = DB::table('logs')
+    ->join('compaigns', function($join) {
+        $join->on(DB::raw('logs.ad_number COLLATE utf8mb4_unicode_ci'), '=', DB::raw('compaigns.number COLLATE utf8mb4_unicode_ci'));
+    })
+    ->select('logs.*', 'compaigns.name as ad_name')
+    ->orderBy('logs.created_at', 'desc')
+    ->first();
+
+    
+
+        // $latestLog = DB::table('logs')
+        // ->orderBy('created_at', 'desc')
+        // ->first();
 
     return response()->json([
         'data' => $latestLog,
