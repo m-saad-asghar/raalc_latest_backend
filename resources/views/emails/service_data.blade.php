@@ -40,7 +40,7 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img src="https://your-logo-url.com/logo.png" alt="Logo" width="120" />
+            <img src="https://services.raalc.ae/raalc_m_golden_logo.png" alt="Logo" width="200" />
         </div>
         <h3>New Service Data Submission</h3>
         <div class="content">
