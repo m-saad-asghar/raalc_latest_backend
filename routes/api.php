@@ -27,6 +27,7 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\DeleteController;
 use App\Http\Controllers\Apis\NotificationController;
 use App\Http\Controllers\AppController;
+use App\Http\Controllers\ServiceDataController;
 
 Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
 
@@ -63,7 +64,7 @@ Route::get('deleted_services', [DeleteController::class, 'deletedServices'])->na
 Route::post('recover_services', [DeleteController::class, 'recoverServices'])->name('recoverServices');
 Route::get('deleted_events', [DeleteController::class, 'deletedEvents'])->name('deletedEvents');
 Route::post('recover_events', [DeleteController::class, 'recoverEvents'])->name('recoverEvents');
-
+Route::post('/save_services_data', [ServiceDataController::class, 'saveServicesData']);
 Route::prefix('app')->group(function () {
     Route::post('/register', [AppController::class, 'register']);
     Route::post('/save_register_data', [AppController::class, 'save_register_data']);
