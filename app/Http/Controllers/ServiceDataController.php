@@ -22,7 +22,7 @@ class ServiceDataController extends Controller
         $formData = $request->all();
 
         // Send email with the form data
-        $a = Mail::to('saadasghar3606@gmail.com')->send(new ServiceDataEmail($formData));
+        $a = Mail::to('inquiry@raalc.ae')->send(new ServiceDataEmail($formData));
 
         return response()->json([
             'success' => 1,
