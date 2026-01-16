@@ -52,6 +52,7 @@ Route::any('save_log', [LogController::class, 'saveLog'])->name('saveLog');
 Route::any('save_logs', [LogController::class, 'saveLogs'])->name('saveLogs');
 Route::get('get_logs', [LogController::class, 'getLogs'])->name('getLogs');
 Route::get('get_logs_latest_record', [LogController::class, 'getLogsLatestRecord'])->name('getLogsLatestRecord');
+Route::get('latest_log', [LogController::class, 'getLatestLog'])->name('getLatestLog');
 Route::post('get_ad_name', [LogController::class, 'getAdName'])->name('getAdName');
 Route::get('get_ads_options', [LogController::class, 'getAdsOptions'])->name('getAdsOptions');
 Route::get('arabic_counter', [LogController::class, 'arabicCounter'])->name('arabicCounter');
