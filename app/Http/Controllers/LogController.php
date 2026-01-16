@@ -441,6 +441,23 @@ public function landingPagesCounter(Request $request) {
 // ]);
 //     }
 
+    public function getLatestLog(Request $request)
+    {
+
+        $latestLog = DB::table('logs')
+        ->select([
+            '*',
+            DB::raw("IFNULL(NULLIF(ad_number, ''), 'Organic') as ad_number"),
+            DB::raw("IFNULL(NULLIF(compaign_source, ''), 'Organic') as compaign_source"),
+        ])
+        ->orderByDesc('created_at')
+        ->first();
+
+        return response()->json([
+            'data' => $latestLog,
+        ]);
+    }
+
     public function getLogsLatestRecord(Request $request)
     {
 
