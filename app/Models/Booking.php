@@ -20,6 +20,7 @@ class Booking extends Model
         "time_slot",
         "beverage",
         "number_of_attendees",
+        "meeting_type",
         "meeting_shift",
         "meeting_place",
         "booking_status",
