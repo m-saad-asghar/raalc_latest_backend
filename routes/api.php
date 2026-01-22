@@ -105,8 +105,8 @@ Route::group(['prefix' => 'quote', 'middleware'=>'validateLang'], function() {
 });
 
 // Fetch Time Slots
-Route::post('/timeSlots', [TimeSlotController::class, 'fetchSlots']);
-Route::post('/timeSlotsNew', [TimeSlotController::class, 'fetchSlotsNew']);
+// Route::post('/timeSlots', [TimeSlotController::class, 'fetchSlots']);
+Route::post('/timeSlots', [TimeSlotController::class, 'fetchSlotsNew']);
 
 // Teams Get Data Apis
 Route::group(['prefix' => 'teams', 'middleware' => 'validateLang'], function() {
