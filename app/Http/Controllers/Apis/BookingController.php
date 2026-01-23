@@ -61,7 +61,7 @@ class BookingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-     public function meetingStore($lang, Request $request)
+    public function meetingStore($lang, Request $request)
     {   
         DB::beginTransaction(); // Start transaction
 
@@ -102,6 +102,7 @@ class BookingController extends Controller
                     'meeting_date' => $request->input('meeting_date'),
                     'time_slot' => $request->input('time_slot'),
                     'number_of_attendees' => $request->input('number_of_attendees'),
+                    'meeting_type' => $request->filled('meeting_type') ? $request->meeting_type : null,
                     'booking_status' => 'booked',
                     'meeting_purpose' => $request->input('meeting_purpose'),
                     'language' => $lang,
