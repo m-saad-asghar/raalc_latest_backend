@@ -737,8 +737,9 @@ class BookingController extends Controller
                 $client_id = (int)  $list->client_id;
                 $client_name = $list->client_name;
                 $client_email = $list->client_email;
-		$client_phone = $list->client_phone;
+		        $client_phone = $list->client_phone;
                 $number_of_attendees = $list->number_of_attendees;
+                $meeting_type = $list->meeting_type;
                 $meeting_date = $list->meeting_date;
                 $time_slot_id = $list->time_slot;
                 $booking_status = $list->booking_status;
@@ -804,7 +805,7 @@ class BookingController extends Controller
                     'client_id' => $client_id,
                     'client_name' => $client_name,
                     'client_email' => $client_email,
-		    'client_phone' => $client_phone,
+		            'client_phone' => $client_phone,
                     'consultant_name' => $consultant_name,
                     'consultant_email' => $consultant_email,
                     'consultant_designation' => $consultant_designation,
@@ -812,6 +813,7 @@ class BookingController extends Controller
                     'meeting_date' => $formattedDate,
                     'time_slot' => $time_slot,
                     'number_of_attendees' => $number_of_attendees,
+                    'meeting_type' => $meeting_type,
                     'description' => $description ?? "",
                     'booking_status' => $booking_status,
                     'meeting_purpose' => $meeting_purpose ?? "",
