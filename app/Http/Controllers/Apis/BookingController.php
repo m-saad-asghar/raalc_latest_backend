@@ -75,7 +75,7 @@ class BookingController extends Controller
                 'client_phone' => 'nullable|string',
                 'meeting_date' => 'required|date',
                 'time_slot' => 'required|numeric',
-                'number_of_attendees' => 'required|numeric',
+                // 'number_of_attendees' => 'required|numeric',
             ];
         
             // Create a validator instance with the request data and rules
@@ -101,7 +101,7 @@ class BookingController extends Controller
                     'consultant_id' => $request->input('consultant_id'),
                     'meeting_date' => $request->input('meeting_date'),
                     'time_slot' => $request->input('time_slot'),
-                    'number_of_attendees' => $request->input('number_of_attendees'),
+                    'number_of_attendees' => $request->filled('meeting_type') ? $request->input('number_of_attendees') : 1,
                     'meeting_type' => $request->filled('meeting_type') ? $request->meeting_type : null,
                     'booking_status' => 'booked',
                     'meeting_purpose' => $request->input('meeting_purpose'),
@@ -163,7 +163,7 @@ class BookingController extends Controller
                     'meeting_date' => $formattedDate,
                     'time_slot' => $time_slot,
                     'description' => "",
-                    'number_of_attendees' => $request->input('number_of_attendees'),
+                    'number_of_attendees' => $request->filled('meeting_type') ? $request->input('number_of_attendees') : 1,
                     'meeting_purpose' => $request->input('meeting_purpose'),
                     'booking_status' => 'booked',
                     'change_status' => false
