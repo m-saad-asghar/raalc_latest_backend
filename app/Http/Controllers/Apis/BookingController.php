@@ -407,9 +407,11 @@ class BookingController extends Controller
             DB::beginTransaction(); // Start transaction
         
             // Retrieve booking
-            $booking = Booking::where('id', $id)
-                              ->where('language', $lang)
-                              ->first();
+            $booking = Booking::where('id', $id)->first();
+
+            // $booking = Booking::where('id', $id)
+            //                   ->where('language', $lang)
+            //                   ->first();
             if (!$booking) {
                 return response()->json(['status' => 'false', 'message' => 'Booking not found'], Response::HTTP_NOT_FOUND);
             }

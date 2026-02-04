@@ -19,6 +19,7 @@ use App\Http\Controllers\Apis\AppContentController;
 use App\Http\Controllers\Apis\BookingController;
 use App\Http\Controllers\Apis\TimeSlotController;
 use App\Http\Controllers\Apis\ServiceCategoryController;
+use App\Http\Controllers\Apis\NewsCategoryController;
 use App\Http\Controllers\Apis\ReviewController;
 use App\Http\Controllers\Apis\ElementController;
 use App\Http\Controllers\Apis\QuoteController;
@@ -244,6 +245,13 @@ Route::group(['prefix' => 'servicescategory', 'middleware' => 'validateLang'], f
     Route::get('/service_categories/{lang}', [ServiceCategoryController::class, 'getServiceCategories'])->name('list');
     Route::get('/service_categories/{lang}/{id}', [ServiceCategoryController::class, 'getCategoryById'])->name('fetch');
     Route::get('/services_relates_category/{lang}', [ServiceCategoryController::class, 'fetchServicesRelatesCategory'])->name('fetchServices');
+});
+
+// News category api
+Route::group(['prefix' => 'news-categories'], function() {
+    //news category get apis
+    Route::get('/', [NewsCategoryController::class, 'getNewsCategories'])->name('list');
+    Route::get('/{id}', [NewsCategoryController::class, 'getCategoryById'])->name('fetch');
 });
 
 
