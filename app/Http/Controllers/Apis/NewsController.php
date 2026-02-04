@@ -273,7 +273,7 @@ class NewsController extends Controller
                 if($request->has('date')){
                     $news->date = $request->date;
                 }
-                $news->slug = Str::slug($request->title);
+                $news->slug = $request->filled('slug') ? $request->slug : Str::slug($request->title);
                 $news->created_by = $this->user->id;
                 $news->save();
 
@@ -362,7 +362,7 @@ class NewsController extends Controller
                 }
 
             }
-            $news->slug = Str::slug($request->title);
+            $news->slug = $request->filled('slug') ? $request->slug : Str::slug($request->title);
             $news->images = implode(",", $imgPaths);
             $news->save();
 
