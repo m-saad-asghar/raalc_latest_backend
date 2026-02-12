@@ -560,7 +560,11 @@ class BookingController extends Controller
             if ($send_email) {    
                 $template = 'emails.booking_templates.' . $lang . '_bookMeeting'; // Example for language template
                 // Send email to client with booking details
-                Mail::to($recipientEmail)->send(new BookMeetingMail($bookingDetail, $template, $lang, false));
+                $clientMail = new BookMeetingMail($bookingDetail, $template, $lang, false);
+                if (!empty($consultant_email) && filter_var($consultant_email, FILTER_VALIDATE_EMAIL)) {
+                    $clientMail->replyTo($consultant_email);
+                }
+                Mail::to($recipientEmail)->send($clientMail);
 
                 // Consultant/Lawyer Email
                 if(!empty($consultant_email) && $consultant_email != null) {

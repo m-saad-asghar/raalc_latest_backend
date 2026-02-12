@@ -114,14 +114,15 @@
                 </tbody>
             </table>
             <br>
-            <p>Regards,<br> {{ config('app.name') }}</p>
+            <p>Regards,<br> RAALC Team</p>
         </div>
     @else
         <!-- User Email Content in Table Form -->
         <div class="email-section">
-            <h1>{{ $bookingDetail['change_status'] ? 'Your Legal Consultation Request Status Has Been Updated!' : 'Thank You for Your Request!' }}</h1>
+            <!-- <h1>{{ $bookingDetail['change_status'] ? 'Your Legal Consultation Request Status Has Been Updated!' : 'Thank You for Your Request!' }}</h1> -->
             <p>Dear {{ $bookingDetail['client_name'] }},</p>
-            <p>{{ $bookingDetail['change_status'] ? 'The status of your legal advice request has been updated. Please see details below:' : 'Thank you for submitting a request for legal consultation from RAALC Law Firm. Our team will contact you shortly to confirm the meeting time.' }}</p>
+            <!-- <p>{{ $bookingDetail['change_status'] ? 'The status of your legal advice request has been updated. Please see details below:' : 'Thank you for submitting a request for legal consultation from RAALC Law Firm. Our team will contact you shortly to confirm the meeting time.' }}</p> -->
+            <p>{{ $bookingDetail['change_status'] ? 'Thank you for confirming your meeting with RAALC. Please find the details below:' : 'Thank you for submitting a request for legal consultation from RAALC Law Firm. Our team will contact you shortly to confirm the meeting time.' }}</p>
             <table>
                 <tbody>
 
@@ -214,8 +215,22 @@
                 </tbody>
             </table>
             <br>
-            <p>Please keep this information for your records.</p>
-            <p>Regards,<br>{{ config('app.name') }}</p>
+
+            @if($bookingDetail['change_status'])
+
+                @if(!empty($bookingDetail['meeting_link']))
+                    <p>Kindly join the meeting using the link above at the scheduled time.</p>
+                @endif
+
+                @if(!empty($bookingDetail['meeting_location']))
+                    <p>We look forward to welcoming you at our office. Should you require any assistance, please feel free to contact us.</p>
+                @endif
+
+            @endif
+            
+
+            <!-- <p>Please keep this information for your records.</p> -->
+            <p>Regards,<br>RAALC Team</p>
         </div>
     @endif
 </body>

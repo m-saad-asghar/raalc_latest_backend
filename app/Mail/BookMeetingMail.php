@@ -38,8 +38,8 @@ class BookMeetingMail extends Mailable
     {
         if($bookingDetail['change_status']){
             $subjects = [
-                'en' => 'Legal Consultation Request Status Updated',
-                'ar' => 'تم تحديث حالة طلب الاستشارة القانونية',
+                'en' => 'Meeting Confirmation – RAALC',
+                'ar' => 'تأكيد الاجتماع – RAALC',
                 'ru' => 'Статус бронирования встречи обновлен',
                 'ch' => '会议预订状态已更新',
             ];    
