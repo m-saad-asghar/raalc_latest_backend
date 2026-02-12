@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Booking extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     
     protected $table = 'bookings';
 
@@ -27,8 +28,13 @@ class Booking extends Model
         "consultant_id",
         "meeting_purpose",
         "language",
-        "description"
+        "description",
+        "consultant_email",
+        "meeting_link",
+        "meeting_location",
     ];
+
+    protected $dates = ['deleted_at'];
     
     public function notifications()
     {

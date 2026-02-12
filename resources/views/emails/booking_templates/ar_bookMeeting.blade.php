@@ -47,32 +47,65 @@
                         <td>رقم هاتف العميل</td>
                         <td>{{ $bookingDetail['client_phone'] ?? '' }}</td>
                     </tr>
+
+                    @if(!empty($bookingDetail['consultant_name']))
                     <tr>
-                        <td>التاريخ المفضل</td>
+                        <td>إسم الإستشاري</td>
+                        <td>{{ $bookingDetail['consultant_name'] }}</td>
+                    </tr>
+                    @endif
+
+                    @if(!empty($bookingDetail['consultant_email']))
+                    <tr>
+                        <td>البريد الإلكتروني للمستشار</td>
+                        <td>{{ $bookingDetail['consultant_email'] }}</td>
+                    </tr>
+                    @endif
+                    
+                    <tr>
+                        <td>التاريخ</td>
                         <td>{{ $bookingDetail['meeting_date'] }}</td>
                     </tr>
                     <tr>
-                        <td>الوقت المفضل</td>
+                        <td>الوقت</td>
                         <td>{{ $bookingDetail['time_slot'] }}</td>
                     </tr>
+                    @if(!empty($bookingDetail['meeting_type']))
                     <tr>
+                        <td>نوع الاجتماع</td>
+                        <td>{{ $bookingDetail['meeting_type'] }}</td>
+                    </tr>
+                    @endif
+                    @if(!empty($bookingDetail['meeting_link']))
+                    <tr>
+                        <td>رابط الاجتماع</td>
+                        <td>{{ $bookingDetail['meeting_link'] }}</td>
+                    </tr>
+                    @endif
+                    @if(!empty($bookingDetail['meeting_location']))
+                    <tr>
+                        <td>مكان الاجتماع</td>
+                        <td>{{ $bookingDetail['meeting_location'] }}</td>
+                    </tr>
+                    @endif
+                    <!-- <tr>
                         <td>عدد الحضور</td>
                         <td>{{ $bookingDetail['number_of_attendees'] }}</td>
-                    </tr>
+                    </tr> -->
                     <tr>
                         <td>غرض الاجتماع</td>
                         <td>{{ $bookingDetail['meeting_purpose'] }}</td>
                     </tr>
                     @if(!empty($bookingDetail['description']))
                     <tr>
-                        <td>تعليق المشرف</td>
+                        <td>حالة الاجتماع والتفاصيل</td>
                         <td>{{ $bookingDetail['description'] }}</td>
                     </tr>
                     @endif
-                    <tr>
+                    <!-- <tr>
                         <td>حالة طلب</td>
                         <td>{{ $bookingDetail['booking_status'] }}</td>
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
             <br>
@@ -86,46 +119,94 @@
             <p>{{ $bookingDetail['change_status'] ? 'لقد تم تحديث حالة طلب الاستشارة القانونية الخاص بك. يرجى الاطلاع على التفاصيل أدناه:' : 'شكراً لتقديم طلب للحصول على استشارة قانونية من مكتب RAALC للمحاماة. سيتواصل فريقنا معك خلال وقت قصير لتأكيد موعد الاجتماع.' }}</p>
             <table>
                 <tbody>
+
+                    @if(!empty($bookingDetail['client_name']))
+                    <tr>
+                        <td>اسم العميل</td>
+                        <td>{{ $bookingDetail['client_name'] }}</td>
+                    </tr>
+                    @endif
+
+                    @if(!empty($bookingDetail['client_email']))
+                    <tr>
+                        <td>بريد العميل الإلكتروني</td>
+                        <td>{{ $bookingDetail['client_email'] }}</td>
+                    </tr>
+                    @endif
+
+                    @if(!empty($bookingDetail['client_phone']))
+                    <tr>
+                        <td>رقم هاتف العميل</td>
+                        <td>{{ $bookingDetail['client_phone'] ?? '' }}</td>
+                    </tr>
+                    @endif
+
                     @if(!empty($bookingDetail['consultant_name']))
                     <tr>
                         <td>إسم الإستشاري</td>
                         <td>{{ $bookingDetail['consultant_name'] }}</td>
                     </tr>
                     @endif
-                    @if(!empty($bookingDetail['consultant_designation']))
+
+                    @if(!empty($bookingDetail['consultant_email']))
+                    <tr>
+                        <td>البريد الإلكتروني للمستشار</td>
+                        <td>{{ $bookingDetail['consultant_email'] }}</td>
+                    </tr>
+                    @endif
+
+                    <!-- @if(!empty($bookingDetail['consultant_designation']))
                     <tr>
                         <td>تسمية المستشار</td>
                         <td>{{ $bookingDetail['consultant_designation'] }}</td>
                     </tr>
-                    @endif
+                    @endif -->
                     <tr>
-                        <td>التاريخ المفضل</td>
+                        <td>التاريخ</td>
                         <td>{{ $bookingDetail['meeting_date'] }}</td>
                     </tr>
                     <tr>
-                        <td>الوقت المفضل</td>
+                        <td>الوقت</td>
                         <td>{{ $bookingDetail['time_slot'] }}</td>
                     </tr>
+                    @if(!empty($bookingDetail['meeting_type']))
                     <tr>
+                        <td>نوع الاجتماع</td>
+                        <td>{{ $bookingDetail['meeting_type'] }}</td>
+                    </tr>
+                    @endif
+                    @if(!empty($bookingDetail['meeting_link']))
+                    <tr>
+                        <td>رابط الاجتماع</td>
+                        <td>{{ $bookingDetail['meeting_link'] }}</td>
+                    </tr>
+                    @endif
+                    @if(!empty($bookingDetail['meeting_location']))
+                    <tr>
+                        <td>مكان الاجتماع</td>
+                        <td>{{ $bookingDetail['meeting_location'] }}</td>
+                    </tr>
+                    @endif
+                    <!-- <tr>
                         <td>عدد الحضور</td>
                         <td>{{ $bookingDetail['number_of_attendees'] }}</td>
-                    </tr>
+                    </tr> -->
                     <tr>
                         <td>غرض الاجتماع</td>
                         <td>{{ $bookingDetail['meeting_purpose'] }}</td>
                     </tr>
                     @if(!empty($bookingDetail['description']))
                     <tr>
-                        <td>تعليق المشرف</td>
+                        <td>حالة الاجتماع والتفاصيل</td>
                         <td>{{ $bookingDetail['description'] }}</td>
                     </tr>
                     @endif
-                    @if($bookingDetail['change_status'])
+                    <!-- @if($bookingDetail['change_status'])
                     <tr>
                         <td>حالة طلب</td>
                         <td>{{ $bookingDetail['booking_status'] }}</td>
                     </tr>
-                    @endif
+                    @endif -->
                 </tbody>
             </table>
             <br>

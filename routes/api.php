@@ -428,6 +428,9 @@ Route::middleware(['auth:api', 'jwt.expired'])->group(function () {
     Route::group(['prefix' => 'booking', 'middleware' => 'validateLang'], function() {    
         // Book a Meeting Process
         Route::post('/meetingStatus/{id}/{lang?}', [BookingController::class, 'meetingStatus']);
+
+        // Delete single booking (soft delete)
+        Route::delete('/delete/{id}', [BookingController::class, 'deleteBooking']);
         
         // Get Booking Notification History For Mobile App
         Route::get('notificationHistory/{id}', [NotificationController::class, 'notificationHistory']);

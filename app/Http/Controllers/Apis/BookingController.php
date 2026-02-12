@@ -161,7 +161,7 @@ class BookingController extends Controller
                     'consultant_designation' => $consultant_designation,
                     'consultant_image' => $consultant_image,
                     'meeting_date' => $formattedDate,
-                    'time_slot' => $time_slot,
+                    'time_slot' => $time_slot. " (Gulf Standard Time)",
                     'description' => "",
                     'number_of_attendees' => $request->filled('meeting_type') ? $request->input('number_of_attendees') : 1,
                     'meeting_purpose' => $request->input('meeting_purpose'),
@@ -279,6 +279,8 @@ class BookingController extends Controller
                 $client_email = $list->client_email;
 		        $client_phone = $list->client_phone;
                 $number_of_attendees = $list->number_of_attendees;
+                $meeting_link = $list->meeting_link;
+                $meeting_location = $list->meeting_location;
                 $meeting_type = $list->meeting_type;
                 $meeting_date = $list->meeting_date;
                 $time_slot_id = $list->time_slot;
@@ -297,6 +299,10 @@ class BookingController extends Controller
                 if(!empty($team->lawyer_email) && $team->lawyer_email != null){
                     $consultant_email = $team->lawyer_email;
                 }
+
+                if( empty( $consultant_email) ) {
+                    $consultant_email = $list->consultant_email;
+                }   
                 
                 // Retrieve the team translation
                 $translation = TeamTranslation::where('team_id', $team_id)
@@ -349,10 +355,12 @@ class BookingController extends Controller
                         'consultant_id' => (int) $team_id,
                         'consultant_name' => $consultant_name,
                         'consultant_email' => $consultant_email,
+                        'meeting_link' => $meeting_link,
+                        'meeting_location' => $meeting_location,
                         'consultant_designation' => $consultant_designation,
                         'consultant_image' => $consultant_image,
                         'meeting_date' => $formattedDate,
-                        'time_slot' => $time_slot,
+                        'time_slot' => $time_slot. " (Gulf Standard Time)",
                         'number_of_attendees' => $number_of_attendees,
                         'meeting_type' => $meeting_type,
                         'description' => $description ?? "",
@@ -424,6 +432,18 @@ class BookingController extends Controller
             if ($request->has('description')) {
                 $booking->description = $request->input('description');
             }
+
+            if ($request->has('meeting_link')) {
+                $booking->meeting_link = $request->input('meeting_link');
+            }
+
+            if ($request->has('meeting_location')) {
+                $booking->meeting_location = $request->input('meeting_location');
+            }
+
+            if ($request->has('consultant_email')) {
+                $booking->consultant_email = $request->input('consultant_email');
+            }
             
             if ($request->has('meeting_date') && $request->has('time_slot')) {
                 $booking->meeting_date = $request->input('meeting_date');
@@ -454,6 +474,10 @@ class BookingController extends Controller
             
             if(!empty($team->lawyer_email) && $team->lawyer_email != null){
                 $consultant_email = $team->lawyer_email;
+            }
+
+            if ($request->has('consultant_email')) {
+                $consultant_email = $request->input('consultant_email');
             }
             
             // Retrieve the team translation
@@ -492,11 +516,14 @@ class BookingController extends Controller
                 'client_email' => $booking->client_email,
                 'client_phone' => $booking->client_phone ?? "N/A",
                 'consultant_name' => $consultant_name,
+                'meeting_type' => $booking->meeting_type,
+                'meeting_link' => $booking->meeting_link,
+                'meeting_location' => $booking->meeting_location,
                 'consultant_email' => $consultant_email,
                 'consultant_designation' => $consultant_designation,
                 'consultant_image' => $consultant_image,
                 'meeting_date' => $formattedDate,
-                'time_slot' => $time_slot,
+                'time_slot' => $time_slot. " (Gulf Standard Time)",
                 'description' => $booking->description,
                 'number_of_attendees' => $booking->number_of_attendees,
                 'meeting_purpose' => $booking->meeting_purpose,
@@ -534,6 +561,14 @@ class BookingController extends Controller
                 $template = 'emails.booking_templates.' . $lang . '_bookMeeting'; // Example for language template
                 // Send email to client with booking details
                 Mail::to($recipientEmail)->send(new BookMeetingMail($bookingDetail, $template, $lang, false));
+
+                // Consultant/Lawyer Email
+                if(!empty($consultant_email) && $consultant_email != null) {
+                    $defaultLang = 'en'; // Set your default language code
+                    $template = 'emails.booking_templates.' . $defaultLang . '_bookMeeting'; // Example for language template
+                    // Send email to consultant with booking details
+                    Mail::to($consultant_email)->send(new BookMeetingMail($bookingDetail, $template, $defaultLang, false));
+                }
                 
                 // Send email to Admin with booking details
                 $isAdmin = config('mail.admin_address');
@@ -620,8 +655,11 @@ class BookingController extends Controller
                 $client_id = (int) $list->client_id;
                 $client_name = $list->client_name;
                 $client_email = $list->client_email;
-		$client_phone = $list->client_phone;
+		        $client_phone = $list->client_phone;
                 $number_of_attendees = $list->number_of_attendees;
+                $meeting_link = $list->meeting_link;
+                $meeting_location = $list->meeting_location;
+                $meeting_type = $list->meeting_type;
                 $meeting_date = $list->meeting_date;
                 $time_slot_id = $list->time_slot;
                 $booking_status = $list->booking_status;
@@ -637,6 +675,10 @@ class BookingController extends Controller
                 
                 if(!empty($team->lawyer_email) && $team->lawyer_email != null){
                     $consultant_email = $team->lawyer_email;
+                }
+
+                if (empty($consultant_email)) {
+                    $consultant_email = $list->consultant_email;
                 }
                 
                 // Retrieve the team translation
@@ -686,14 +728,17 @@ class BookingController extends Controller
                         'client_id' => $client_id,
                         'client_name' => $client_name,
                         'client_email' => $client_email,
-			'client_phone' => $client_phone,
+			            'client_phone' => $client_phone,
                         'consultant_id' => (int) $team_id,
                         'consultant_name' => $consultant_name,
                         'consultant_email' =>$consultant_email,
+                        'meeting_link' => $meeting_link,
+                        'meeting_location' => $meeting_location,
+                        'meeting_type' => $meeting_type,
                         'consultant_designation' => $consultant_designation,
                         'consultant_image' => $consultant_image,
                         'meeting_date' => $formattedDate,
-                        'time_slot' => $time_slot,
+                        'time_slot' => $time_slot. " (Gulf Standard Time)",
                         'number_of_attendees' => $number_of_attendees,
                         'description' => $description ?? "",
                         'booking_status' => $booking_status,
@@ -743,6 +788,8 @@ class BookingController extends Controller
 		        $client_phone = $list->client_phone;
                 $number_of_attendees = $list->number_of_attendees;
                 $meeting_type = $list->meeting_type;
+                $meeting_link = $list->meeting_link;
+                $meeting_location = $list->meeting_location;
                 $meeting_date = $list->meeting_date;
                 $time_slot_id = $list->time_slot;
                 $booking_status = $list->booking_status;
@@ -760,6 +807,10 @@ class BookingController extends Controller
                 if(!empty($team->lawyer_email) && $team->lawyer_email != null){
                     $consultant_email = $team->lawyer_email;
                 }
+
+                if( empty( $consultant_email) ) {
+                    $consultant_email = $list->consultant_email;
+                }       
 
                 // Retrieve the team translation
                 $translation = TeamTranslation::where('team_id', $team_id)
@@ -811,10 +862,12 @@ class BookingController extends Controller
 		            'client_phone' => $client_phone,
                     'consultant_name' => $consultant_name,
                     'consultant_email' => $consultant_email,
+                    'meeting_link' => $meeting_link,
+                    'meeting_location' => $meeting_location,
                     'consultant_designation' => $consultant_designation,
                     'consultant_image' => $consultant_image,
                     'meeting_date' => $formattedDate,
-                    'time_slot' => $time_slot,
+                    'time_slot' => $time_slot. " (Gulf Standard Time)",
                     'number_of_attendees' => $number_of_attendees,
                     'meeting_type' => $meeting_type,
                     'description' => $description ?? "",
@@ -856,7 +909,26 @@ class BookingController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    public function deleteBooking($id)
+    {
+        try {
+            $booking = Booking::find($id);
+
+            if (!$booking) {
+                return response()->json(['status' => 'false', 'message' => 'Booking not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $booking->delete();
+
+            return response()->json(['status' => 'true', 'message' => 'Booking deleted successfully'], Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'An error occurred: ' . $ex->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     
      public function consultantsList($lang){
         try {

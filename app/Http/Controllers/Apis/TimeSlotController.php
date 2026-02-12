@@ -138,7 +138,7 @@ class TimeSlotController extends Controller
             $totalCount = $timeSlots->count();
             
             // Initialize counters
-            $bookedCount = 0;
+            // $bookedCount = 0;
             
             // Retrieve all time slots
             $retrieveSlots = $timeSlots->map(function ($slot) use ($request, &$bookedCount) {
@@ -146,29 +146,30 @@ class TimeSlotController extends Controller
                 $time_slot = $slot->from_time . ' to ' . $slot->to_time;
                 $meeting_date = $request->input('meeting_date');
                 
-                $bookedSlot = Booking::where('meeting_date', $meeting_date)
-                    ->where('time_slot', $id)
-                    ->first();
+                // $bookedSlot = Booking::where('meeting_date', $meeting_date)
+                //     ->where('time_slot', $id)
+                //     ->first();
                 
                 // Check if the slot is booked
-                $slot_status = $bookedSlot ? 1 : 0;
+                // $slot_status = $bookedSlot ? 1 : 0;
+                // $slot_status = 0;
     
                 // Count booked slots
-                if ($slot_status === 1) {
-                    $bookedCount++;
-                }
+                // if ($slot_status === 1) {
+                //     $bookedCount++;
+                // }
                 
                 return [
                     'id' => $id,
-                    'time_slot' => $time_slot,
-                    'slot_status' => $slot_status
+                    'time_slot' => $time_slot. " (Gulf Standard Time)",
+                    'slot_status' => 0 //$slot_status
                 ];
             });
             
             // Check if all slots are booked
-            if ($totalCount === $bookedCount) {
-                $retrieveSlots = ['message' => 'All slots have been booked.'];
-            }
+            // if ($totalCount === $bookedCount) {
+            //     $retrieveSlots = ['message' => 'All slots have been booked.'];
+            // }
         
             return response()->json([
                 'status' => 'true',
