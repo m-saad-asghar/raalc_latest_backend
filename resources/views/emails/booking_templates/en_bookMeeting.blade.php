@@ -68,11 +68,21 @@
                     </tr>
                     @endif -->
                     <tr>
-                        <td>Date</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>Date</td>
+                        @else
+                            <td>Requested Date</td>
+                        @endif
+                        
                         <td>{{ $bookingDetail['meeting_date'] }}</td>
                     </tr>
                     <tr>
-                        <td>Time</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>Time</td>
+                        @else   
+                        <td>Requested Time</td>
+                        @endif
+
                         <td>{{ $bookingDetail['time_slot'] }}</td>
                     </tr>
                     @if(!empty($bookingDetail['meeting_type']))
@@ -88,10 +98,14 @@
                     </tr>
                     @endif
                     @if(!empty($bookingDetail['meeting_location']))
-                    <tr>
-                        <td>Meeting Location</td>
-                        <td>{{ $bookingDetail['meeting_location'] }}</td>
-                    </tr>
+                        <tr>
+                            <td>Meeting Location</td>
+                            <td>
+                                @if(!empty($bookingDetail['meeting_location']))
+                                    {!! str_replace(['</br>', '<br/>', '<br />'], '<br>', $bookingDetail['meeting_location']) !!}
+                                @endif
+                            </td>
+                        </tr>
                     @endif
                     <!-- <tr>
                         <td>Number of Attendees</td>
@@ -101,12 +115,12 @@
                         <td>Purpose of the meeting</td>
                         <td>{{ $bookingDetail['meeting_purpose'] }}</td>
                     </tr>
-                    @if(!empty($bookingDetail['description']))
+                    <!-- @if(!empty($bookingDetail['description']))
                     <tr>
                         <td>Meeting Status and Details</td>
                         <td>{{ $bookingDetail['description'] }}</td>
                     </tr>
-                    @endif
+                    @endif -->
                     <!-- <tr>
                         <td>Request Status</td>
                         <td>{{ $bookingDetail['booking_status'] }}</td>
@@ -114,7 +128,10 @@
                 </tbody>
             </table>
             <br>
-            <p>Regards,<br> RAALC Team</p>
+            <p>Best regards,<br> RAALC Law Firm</p>
+            <div>
+                <img src="https://www.raalc.ae/_next/static/media/main-logo.b40297c4.png" alt="RAALC Law Firm Logo" style="height:100px;width:auto;max-width:300px;">
+            </div>
         </div>
     @else
         <!-- User Email Content in Table Form -->
@@ -122,7 +139,13 @@
             <!-- <h1>{{ $bookingDetail['change_status'] ? 'Your Legal Consultation Request Status Has Been Updated!' : 'Thank You for Your Request!' }}</h1> -->
             <p>Dear {{ $bookingDetail['client_name'] }},</p>
             <!-- <p>{{ $bookingDetail['change_status'] ? 'The status of your legal advice request has been updated. Please see details below:' : 'Thank you for submitting a request for legal consultation from RAALC Law Firm. Our team will contact you shortly to confirm the meeting time.' }}</p> -->
-            <p>{{ $bookingDetail['change_status'] ? 'Thank you for confirming your meeting with RAALC. Please find the details below:' : 'Thank you for submitting a request for legal consultation from RAALC Law Firm. Our team will contact you shortly to confirm the meeting time.' }}</p>
+            
+            <p>Greetings from RAALC Law Firm.</p>
+
+            <p>{{ $bookingDetail['change_status'] ? 
+                'We are pleased to inform you that your consultation meeting request has been confirmed. Please find the meeting details below for your reference:' : 
+                'We acknowledge receipt of your consultation meeting request. Please find the details submitted below for your reference:' }}
+            </p>
             <table>
                 <tbody>
 
@@ -167,11 +190,21 @@
                     </tr>
                     @endif -->
                     <tr>
-                        <td>Date</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>Date</td>
+                        @else
+                            <td>Requested Date</td>
+                        @endif
+
                         <td>{{ $bookingDetail['meeting_date'] }}</td>
                     </tr>
                     <tr>
-                        <td>Time</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>Time</td>
+                        @else   
+                        <td>Requested Time</td>
+                        @endif
+
                         <td>{{ $bookingDetail['time_slot'] }}</td>
                     </tr>
                     @if(!empty($bookingDetail['meeting_type']))
@@ -189,7 +222,11 @@
                     @if(!empty($bookingDetail['meeting_location']))
                     <tr>
                         <td>Meeting Location</td>
-                        <td>{{ $bookingDetail['meeting_location'] }}</td>
+                        <td>
+                            @if(!empty($bookingDetail['meeting_location']))
+                                {!! str_replace(['</br>', '<br/>', '<br />'], '<br>', $bookingDetail['meeting_location']) !!}
+                            @endif
+                        </td>
                     </tr>
                     @endif
                     <!-- <tr>
@@ -200,12 +237,12 @@
                         <td>Purpose of the meeting</td>
                         <td>{{ $bookingDetail['meeting_purpose'] }}</td>
                     </tr>
-                    @if(!empty($bookingDetail['description']))
+                    <!-- @if(!empty($bookingDetail['description']))
                     <tr>
                         <td>Meeting Status and Details</td>
                         <td>{{ $bookingDetail['description'] }}</td>
                     </tr>
-                    @endif
+                    @endif -->
                     <!-- @if($bookingDetail['change_status'])
                     <tr>
                         <td>Request Status</td>
@@ -218,19 +255,27 @@
 
             @if($bookingDetail['change_status'])
 
-                @if(!empty($bookingDetail['meeting_link']))
+                <!-- @if(!empty($bookingDetail['meeting_link']))
                     <p>Kindly join the meeting using the link above at the scheduled time.</p>
                 @endif
 
                 @if(!empty($bookingDetail['meeting_location']))
                     <p>We look forward to welcoming you at our office. Should you require any assistance, please feel free to contact us.</p>
-                @endif
+                @endif -->
+
+                <p>We look forward to assisting you. Should you need to reschedule or require any further assistance, please do not hesitate to contact the consultant directly.</p>
+            @else
+
+                <p>Your request is currently under review, and you will receive a follow-up email shortly confirming the scheduled date and time of your consultation.</p>
 
             @endif
             
 
             <!-- <p>Please keep this information for your records.</p> -->
-            <p>Regards,<br>RAALC Team</p>
+            <p>Best regards,<br>RAALC Law Firm</p>
+            <div>
+                <img src="https://www.raalc.ae/_next/static/media/main-logo.b40297c4.png" alt="RAALC Law Firm Logo" style="height:100px;width:auto;max-width:300px;">
+            </div>
         </div>
     @endif
 </body>

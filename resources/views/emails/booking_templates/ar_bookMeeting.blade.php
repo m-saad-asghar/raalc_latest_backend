@@ -63,11 +63,20 @@
                     @endif
 
                     <tr>
-                        <td>التاريخ</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>التاريخ</td>
+                        @else
+                            <td>التاريخ المطلوب</td>
+                        @endif
+
                         <td>{{ $bookingDetail['meeting_date'] }}</td>
                     </tr>
                     <tr>
-                        <td>الوقت</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>الوقت</td>
+                        @else
+                            <td>الوقت المطلوب</td>
+                        @endif
                         <td>{{ $bookingDetail['time_slot'] }}</td>
                     </tr>
                     @if(!empty($bookingDetail['meeting_type']))
@@ -85,7 +94,11 @@
                     @if(!empty($bookingDetail['meeting_location']))
                     <tr>
                         <td>مكان الاجتماع</td>
-                        <td>{{ $bookingDetail['meeting_location'] }}</td>
+                        <td>
+                            @if(!empty($bookingDetail['meeting_location']))
+                                {!! str_replace(['</br>', '<br/>', '<br />'], '<br>', $bookingDetail['meeting_location']) !!}
+                            @endif
+                        </td>
                     </tr>
                     @endif
                     <!-- <tr>
@@ -96,12 +109,12 @@
                         <td>غرض الاجتماع</td>
                         <td>{{ $bookingDetail['meeting_purpose'] }}</td>
                     </tr>
-                    @if(!empty($bookingDetail['description']))
+                    <!-- @if(!empty($bookingDetail['description']))
                     <tr>
                         <td>حالة الاجتماع والتفاصيل</td>
                         <td>{{ $bookingDetail['description'] }}</td>
                     </tr>
-                    @endif
+                    @endif -->
                     <!-- <tr>
                         <td>حالة طلب</td>
                         <td>{{ $bookingDetail['booking_status'] }}</td>
@@ -109,7 +122,10 @@
                 </tbody>
             </table>
             <br>
-            <p>مع التحية،<br>RAALC Team</p>
+            <p>مع التحية،<br>RAALC Law Firm</p>
+            <div>
+                <img src="https://www.raalc.ae/_next/static/media/main-logo.b40297c4.png" alt="RAALC Law Firm Logo" style="height:100px;width:auto;max-width:300px;">
+            </div>
         </div>
     @else
         <!-- User Email Content in Arabic -->
@@ -117,7 +133,14 @@
             <!-- <h1>{{ $bookingDetail['change_status'] ? 'لقد تم تحديث حالة طلب الاستشارة القانونية الخاص بك!' : 'شكراً لتقديم طلبك!' }}</h1> -->
             <p>السيد/ة {{ $bookingDetail['client_name'] }}،</p>
             <!-- <p>{{ $bookingDetail['change_status'] ? 'لقد تم تحديث حالة طلب الاستشارة القانونية الخاص بك. يرجى الاطلاع على التفاصيل أدناه:' : 'شكراً لتقديم طلب للحصول على استشارة قانونية من مكتب RAALC للمحاماة. سيتواصل فريقنا معك خلال وقت قصير لتأكيد موعد الاجتماع.' }}</p> -->
-            <p>{{ $bookingDetail['change_status'] ? 'نشكركم على تأكيد اجتماعكم مع مركز أبحاث السيارات الملكي الأسترالي (RAALC). تجدون التفاصيل أدناه:' : 'شكراً لتقديم طلب للحصول على استشارة قانونية من مكتب RAALC للمحاماة. سيتواصل فريقنا معك خلال وقت قصير لتأكيد موعد الاجتماع.' }}</p>
+            
+            <p>تحياتنا من مكتب المحاماة RAALC.</p>
+
+            <p>{{ $bookingDetail['change_status'] ? 
+                'يسرنا إبلاغكم بتأكيد طلبكم لعقد اجتماع استشاري. تجدون أدناه تفاصيل الاجتماع للاطلاع عليها:' : 
+                'نؤكد استلام طلبكم لعقد اجتماع استشاري. تجدون أدناه التفاصيل المرفقة للاطلاع عليها:' }}
+            </p>
+            
             <table>
                 <tbody>
 
@@ -163,11 +186,21 @@
                     </tr>
                     @endif -->
                     <tr>
-                        <td>التاريخ</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>التاريخ</td>
+                        @else
+                            <td>التاريخ المطلوب</td>
+                        @endif
+
                         <td>{{ $bookingDetail['meeting_date'] }}</td>
                     </tr>
                     <tr>
-                        <td>الوقت</td>
+                        @if($bookingDetail['change_status']) 
+                            <td>الوقت</td>
+                        @else
+                            <td>الوقت المطلوب</td>
+                        @endif
+
                         <td>{{ $bookingDetail['time_slot'] }}</td>
                     </tr>
                     @if(!empty($bookingDetail['meeting_type']))
@@ -185,7 +218,11 @@
                     @if(!empty($bookingDetail['meeting_location']))
                     <tr>
                         <td>مكان الاجتماع</td>
-                        <td>{{ $bookingDetail['meeting_location'] }}</td>
+                        <td>
+                            @if(!empty($bookingDetail['meeting_location']))
+                                {!! str_replace(['</br>', '<br/>', '<br />'], '<br>', $bookingDetail['meeting_location']) !!}
+                            @endif
+                        </td>
                     </tr>
                     @endif
                     <!-- <tr>
@@ -196,12 +233,12 @@
                         <td>غرض الاجتماع</td>
                         <td>{{ $bookingDetail['meeting_purpose'] }}</td>
                     </tr>
-                    @if(!empty($bookingDetail['description']))
+                    <!-- @if(!empty($bookingDetail['description']))
                     <tr>
                         <td>حالة الاجتماع والتفاصيل</td>
                         <td>{{ $bookingDetail['description'] }}</td>
                     </tr>
-                    @endif
+                    @endif -->
                     <!-- @if($bookingDetail['change_status'])
                     <tr>
                         <td>حالة طلب</td>
@@ -214,19 +251,27 @@
 
             @if($bookingDetail['change_status'])
             
-                @if(!empty($bookingDetail['meeting_link']))
+                <!-- @if(!empty($bookingDetail['meeting_link']))
                     <p>يرجى الانضمام إلى الاجتماع باستخدام الرابط أعلاه في الموعد المحدد.</p>
                 @endif
 
                 @if(!empty($bookingDetail['meeting_location']))
                     <p>نتطلع إلى الترحيب بكم في مكتبنا. إذا كنتم بحاجة إلى أي مساعدة، فلا تترددوا في الاتصال بنا.</p>
-                @endif
+                @endif -->
+
+            <p>Wنتطلع إلى مساعدتكم. في حال رغبتكم في إعادة جدولة الموعد أو احتجتم إلى أي مساعدة إضافية، فلا تترددوا في الاتصال بالمستشار مباشرةً.</p>
+            @else
+
+                <p>طلبك قيد المراجعة حاليًا، وستتلقى رسالة بريد إلكتروني للمتابعة قريبًا لتأكيد التاريخ والوقت المحددين لاستشارتك.</p>
 
             @endif
 
             <!-- <p>يرجى الاحتفاظ بهذه المعلومات لسجلاتك.</p> -->
 
-            <p>مع التحية،<br> RAALC Team</p>
+            <p>مع التحية،<br> RAALC Law Firm</p>
+            <div>
+                <img src="https://www.raalc.ae/_next/static/media/main-logo.b40297c4.png" alt="RAALC Law Firm Logo" style="height:100px;width:auto;max-width:300px;">
+            </div>
         </div>
     @endif
 </body>

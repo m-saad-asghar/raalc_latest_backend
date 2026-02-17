@@ -171,8 +171,8 @@ class BookingController extends Controller
             
             // Define messages for different languages
             $messages = [
-                'en' => 'Booked a meeting successfully.',
-                'ar' => 'تم حجز الاجتماع بنجاح.',
+                'en' => 'The meeting request has been submitted successfully',
+                'ar' => 'تم تقديم طلب الاجتماع بنجاح',
                 'ru' => 'Встреча успешно забронирована.',
                 'ch' => '会议成功预订。',
             ];
