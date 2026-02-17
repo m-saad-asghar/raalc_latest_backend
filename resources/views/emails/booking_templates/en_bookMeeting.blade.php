@@ -137,7 +137,13 @@
         <!-- User Email Content in Table Form -->
         <div class="email-section">
             <!-- <h1>{{ $bookingDetail['change_status'] ? 'Your Legal Consultation Request Status Has Been Updated!' : 'Thank You for Your Request!' }}</h1> -->
-            <p>Dear {{ $bookingDetail['client_name'] }},</p>
+            <p>
+                @if(isset($isConsultant) && $isConsultant && !empty($bookingDetail['consultant_name']))
+                    Dear {{ $bookingDetail['consultant_name'] }},
+                @else
+                    Dear {{ $bookingDetail['client_name'] }},
+                @endif
+            </p>
             <!-- <p>{{ $bookingDetail['change_status'] ? 'The status of your legal advice request has been updated. Please see details below:' : 'Thank you for submitting a request for legal consultation from RAALC Law Firm. Our team will contact you shortly to confirm the meeting time.' }}</p> -->
             
             <p>Greetings from RAALC Law Firm.</p>

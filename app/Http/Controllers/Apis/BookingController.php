@@ -571,7 +571,7 @@ class BookingController extends Controller
                     $defaultLang = 'en'; // Set your default language code
                     $template = 'emails.booking_templates.' . $defaultLang . '_bookMeeting'; // Example for language template
                     // Send email to consultant with booking details
-                    Mail::to($consultant_email)->send(new BookMeetingMail($bookingDetail, $template, $defaultLang, false));
+                    Mail::to($consultant_email)->send(new BookMeetingMail($bookingDetail, $template, $defaultLang, false, true));
                 }
                 
                 // Send email to Admin with booking details

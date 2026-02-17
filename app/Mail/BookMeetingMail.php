@@ -18,18 +18,20 @@ class BookMeetingMail extends Mailable
     public $template;
     public $language;
     public $isAdmin;
+    public $isConsultant;
     
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($bookingDetail, $template, $language, $isAdmin)
+    public function __construct($bookingDetail, $template, $language, $isAdmin, $isConsultant = false)
     {
         $this->bookingDetail = $bookingDetail;
         $this->template = $template;
         $this->language = $language;
         $this->isAdmin = $isAdmin;
+        $this->isConsultant = $isConsultant;
         $this->subject = $this->getSubjectByLanguage($language, $bookingDetail);
     }
     
@@ -66,7 +68,8 @@ class BookMeetingMail extends Mailable
                     ->markdown($this->template)
                     ->with([
                         'bookingDetail' => $this->bookingDetail,
-                        'isAdmin' => $this->isAdmin
+                        'isAdmin' => $this->isAdmin,
+                        'isConsultant' => $this->isConsultant
                     ]);
     }
 }
