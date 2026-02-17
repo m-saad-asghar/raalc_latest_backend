@@ -123,6 +123,8 @@ class TimeSlotController extends Controller
 
                 return $fromTime->greaterThanOrEqualTo($officeStart)
                     && $toTime->lessThanOrEqualTo($officeEnd);
+            })->unique(function ($slot) {
+                return $slot->from_time . '-' . $slot->to_time;
             })->values();
 
 
