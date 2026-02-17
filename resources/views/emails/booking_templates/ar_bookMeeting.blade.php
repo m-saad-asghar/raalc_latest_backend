@@ -131,7 +131,12 @@
         <!-- User Email Content in Arabic -->
         <div class="email-section">
             <!-- <h1>{{ $bookingDetail['change_status'] ? 'لقد تم تحديث حالة طلب الاستشارة القانونية الخاص بك!' : 'شكراً لتقديم طلبك!' }}</h1> -->
-            <p>السيد/ة {{ $bookingDetail['client_name'] }}،</p>
+            
+            @if(isset($isConsultant) && $isConsultant && !empty($bookingDetail['consultant_name']))
+                <p>السيد/ة {{ $bookingDetail['consultant_name'] }}،</p>
+            @else
+                <p>السيد/ة {{ $bookingDetail['client_name'] }}،</p>
+            @endif
             <!-- <p>{{ $bookingDetail['change_status'] ? 'لقد تم تحديث حالة طلب الاستشارة القانونية الخاص بك. يرجى الاطلاع على التفاصيل أدناه:' : 'شكراً لتقديم طلب للحصول على استشارة قانونية من مكتب RAALC للمحاماة. سيتواصل فريقنا معك خلال وقت قصير لتأكيد موعد الاجتماع.' }}</p> -->
             
             <p>تحياتنا من مكتب المحاماة RAALC.</p>
