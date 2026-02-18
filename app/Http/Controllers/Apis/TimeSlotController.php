@@ -115,7 +115,7 @@ class TimeSlotController extends Controller
             }
             
             $officeStart = Carbon::createFromFormat('h:i A', '9:00 AM');
-            $officeEnd   = Carbon::createFromFormat('h:i A', '4:00 PM');
+            $officeEnd   = Carbon::createFromFormat('h:i A', '2:00 PM');
 
             $timeSlots = TimeSlot::all()->filter(function ($slot) use ($officeStart, $officeEnd) {
                 $fromTime = Carbon::createFromFormat('h:i A', $slot->from_time);
