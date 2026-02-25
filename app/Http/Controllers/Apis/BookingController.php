@@ -90,6 +90,30 @@ class BookingController extends Controller
                     'message' => $errorMessages
                 ], Response::HTTP_UNPROCESSABLE_ENTITY); // HTTP 422
             }
+
+            $slot_id = $request->input('time_slot');
+            $meeting_date = $request->input('meeting_date');
+            $slot_data = TimeSlot::where('id', $slot_id)->first();
+            $time_slot = $slot_data->from_time.' To '.$slot_data->to_time;
+
+            // Combine meeting_date and from_time to get slot datetime
+            $slotDateTime = Carbon::createFromFormat('Y-m-d h:i A', $meeting_date . ' ' . $slot_data->from_time, 'Asia/Dubai');
+            $uaeNow = Carbon::now('Asia/Dubai');
+
+            // Check if slot is in the past or less than 1 hour in the future
+            if ($slotDateTime->lessThanOrEqualTo($uaeNow)) {
+                return response()->json([
+                    'status' => 'false',
+                    'message' => 'You cannot book a past slot. Please refresh the page and try again.'
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            if ($slotDateTime->diffInMinutes($uaeNow) < 60) {
+                return response()->json([
+                    'status' => 'false',
+                    'message' => 'This Slot is not available, Please refresh the page and try again.'
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
             $client_id = $request->input('client_id');
             $recipientEmail = $request->input('client_email');
             // Insert into booking table
@@ -146,10 +170,6 @@ class BookingController extends Controller
             
              // Convert the date format
             $formattedDate = Carbon::createFromFormat('Y-m-d', $request->input('meeting_date'))->format('d M Y');
-            
-            $slot_id = $request->input('time_slot');
-            $slot_data = TimeSlot::where('id', $slot_id)->first();
-            $time_slot = $slot_data->from_time.' To '.$slot_data->to_time;
             
             // Combine order details, tracking data, and order items
             $bookingDetail = [
