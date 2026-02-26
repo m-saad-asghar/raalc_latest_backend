@@ -23,6 +23,7 @@ use App\Http\Controllers\Apis\NewsCategoryController;
 use App\Http\Controllers\Apis\ReviewController;
 use App\Http\Controllers\Apis\ElementController;
 use App\Http\Controllers\Apis\QuoteController;
+use App\Http\Controllers\Apis\ThankYouEmailController;
 use App\Http\Controllers\Apis\CaseManagementController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\DeleteController;
@@ -31,6 +32,8 @@ use App\Http\Controllers\AppController;
 use App\Http\Controllers\ServiceDataController;
 
 Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
+// Thank You Email API Route
+Route::post('/send-thank-you-email', [ThankYouEmailController::class, 'sendThankYouEmail']);
 
 
 /*
