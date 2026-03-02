@@ -256,7 +256,8 @@ class TeamController extends Controller
             
             $team->order_number = (int)$lastData->order_number + 1;
             $member_name = $translationData['name'];
-            $team->slug = Str::slug($member_name);
+            // $team->slug = Str::slug($member_name);
+            $team->slug = $translationData['slug'] ? $translationData['slug'] : Str::slug($member_name);
             $team->save();
 
             // Insert into department_translations table
@@ -336,6 +337,7 @@ class TeamController extends Controller
                 'data' => [
                     'id' => $id,
                     'order_number' => $team->order_number,
+                    'slug' => $team->slug,
                     'meta_tag' => $meta_tag,
                     'meta_description' => $meta_description,
                     'schema_code' => $meta_schema,
@@ -464,7 +466,7 @@ class TeamController extends Controller
             
             $translation = $request->input('team_translation', []);
             $member_name = $translation['name'];
-            $team->slug = Str::slug($member_name);
+            $team->slug = $translation['slug'] ? $translation['slug'] : Str::slug($member_name);
             $team->save();
 
             // Update or create department translation

@@ -217,7 +217,8 @@ class ServicesController extends Controller
             
             $translation = $request->input('translation', []);
             $service_title = $translation['sec_one_heading_one'];
-            $service->slug = Str::slug($service_title);
+            // $service->slug = Str::slug($service_title);
+            $service->slug = $request->filled('slug') ? $request->slug : Str::slug($service_title);
             $service->save();
 
             $serviceId = $service->id;
@@ -561,7 +562,8 @@ class ServicesController extends Controller
 
             $translation = $request->input('translation', []);
             $service_title = $translation['sec_one_heading_one'];
-            $service->slug = Str::slug($service_title);
+            // $service->slug = Str::slug($service_title);
+            $service->slug = $request->filled('slug') ? $request->slug : Str::slug($service_title);
             $service->save();
             
             // For Defualt Language Data Fetch

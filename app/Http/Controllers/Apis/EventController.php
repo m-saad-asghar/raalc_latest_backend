@@ -221,7 +221,8 @@ class EventController extends Controller
                 if($request->has('date')){
                     $event->date = $request->date;
                 }
-                $event->slug = Str::slug($request->title);
+                // $event->slug = Str::slug($request->title);
+                $event->slug = $request->filled('slug') ? $request->slug : Str::slug($request->title);
                 $event->created_by = $this->user->id;
                 $event->save();
 
@@ -307,7 +308,8 @@ class EventController extends Controller
 
             }
             $event->date = $request->date;
-            $event->slug = Str::slug($request->title);
+            // $event->slug = Str::slug($request->title);
+            $event->slug = $request->filled('slug') ? $request->slug : Str::slug($request->title);
             $event->images = implode(",", $imgPaths);
             $event->save();
 
