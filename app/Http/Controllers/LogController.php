@@ -192,6 +192,8 @@ public function landingPagesCounter(Request $request) {
 
     // Shared base query with all filters
     $baseQuery = function ($query) use ($origin, $type, $source, $ipAddress, $pageUrl, $ad_number, $compaign_source, $dateRange, $leadType, $id) {
+        // Exclude records where page_url is null, empty, or contains 'hcrealestate'
+        $query->whereNotNull('page_url')->where('page_url', '!=', '')->where('page_url', 'NOT LIKE', '%hcrealestate%');
         if ($origin) {
             $query->where('origin', $origin);
         }
