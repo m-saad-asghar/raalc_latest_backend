@@ -99,9 +99,9 @@ public function landingPagesCounter(Request $request) {
                         $adNumber = $queryParams['gad_campaignid'];
                     }
 
-                      elseif (isset($queryParams['utm_campaign'])) {
-        $adNumber = $queryParams['utm_campaign'];
-    }
+                    elseif (isset($queryParams['utm_campaign'])) {
+                        $adNumber = $queryParams['utm_campaign'];
+                    }
                 }
             }
 
@@ -121,7 +121,7 @@ public function landingPagesCounter(Request $request) {
                 'page_url'   => $request->page_url,
                 'origin'     => $request->origin,
                 'ad_number'  => $adNumber ?? '',
-                'compaign_source'  => $compaignSource ?? '',
+                'compaign_source'  => $compaignSource ?? 'Undefined',
                 // 'ad_number' => $request->ad_number ?? '',
                 'source'     => $request->source,
                 'type'     => $request->type,
