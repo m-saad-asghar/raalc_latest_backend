@@ -543,6 +543,34 @@ class TeamController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function changeOrderNumber(Request $request)
+    {
+
+        try {
+            $teamId = $request->input('team_id');
+            $orderNumber = $request->input('order_number');
+            
+            // return $inputData;
+
+            if (isset($teamId)) {
+                Team::where('id', $teamId)->update([
+                    'order_number' => $orderNumber
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'true',
+                'message' => 'Team order updated successfully'
+            ], Response::HTTP_OK);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'false',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     
     // Search function team
     public function searchTeamList(Request $request, $lang, $per_page = 12)

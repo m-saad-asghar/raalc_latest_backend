@@ -355,6 +355,7 @@ Route::middleware(['auth:api', 'jwt.expired'])->group(function () {
     
     Route::group(['prefix' => 'teamorder'], function() {
         Route::post('/updateorder', [TeamController::class,'updateOrderNumber']);
+        Route::post('/changeorder', [TeamController::class,'changeOrderNumber']);
     });
     
     
