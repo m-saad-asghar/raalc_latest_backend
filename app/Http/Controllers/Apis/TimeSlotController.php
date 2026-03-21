@@ -114,16 +114,16 @@ class TimeSlotController extends Controller
                 ], Response::HTTP_UNPROCESSABLE_ENTITY); // HTTP 422
             }
             
-            if( $request->input('meeting_date') == "2026-03-19" || $request->input('meeting_date') == "2026-03-20" ) {
-                return response()->json([
-                    'status' => 'false',
-                    'message' => 'No slots available for the selected date.'
-                ], Response::HTTP_OK);
+            // if( $request->input('meeting_date') == "2026-03-19" || $request->input('meeting_date') == "2026-03-20" ) {
+            //     return response()->json([
+            //         'status' => 'false',
+            //         'message' => 'No slots available for the selected date.'
+            //     ], Response::HTTP_OK);
 
-            }
+            // }
 
             $officeStart = Carbon::createFromFormat('h:i A', '9:00 AM');
-            $officeEnd   = Carbon::createFromFormat('h:i A', '2:00 PM');
+            $officeEnd   = Carbon::createFromFormat('h:i A', '4:00 PM');
 
             $timeSlots = TimeSlot::all()->filter(function ($slot) use ($officeStart, $officeEnd) {
                 $fromTime = Carbon::createFromFormat('h:i A', $slot->from_time);

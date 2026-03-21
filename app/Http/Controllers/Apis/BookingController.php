@@ -91,13 +91,13 @@ class BookingController extends Controller
                 ], Response::HTTP_UNPROCESSABLE_ENTITY); // HTTP 422
             }
 
-            if( $request->input('meeting_date') == "2026-03-19" || $request->input('meeting_date') == "2026-03-20" ) {
-                return response()->json([
-                    'status' => 'false',
-                    'message' => 'This Slot is not available, Please refresh the page and try again.'
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            // if( $request->input('meeting_date') == "2026-03-19" || $request->input('meeting_date') == "2026-03-20" ) {
+            //     return response()->json([
+            //         'status' => 'false',
+            //         'message' => 'This Slot is not available, Please refresh the page and try again.'
+            //     ], Response::HTTP_UNPROCESSABLE_ENTITY);
 
-            }
+            // }
 
             $slot_id = $request->input('time_slot');
             $meeting_date = $request->input('meeting_date');
