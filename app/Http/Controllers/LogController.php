@@ -51,10 +51,8 @@ public function landingPagesCounter(Request $request) {
     }
 }
 
-public function genericLandingPagesCounter(Request $request) {
-    $page = $request->input('page');
-    $totalCount = $request->input('totalCount');
-
+public function genericLandingPagesCounter(Request $request, $page, $totalCount) {
+    
     if (!$page || !is_numeric($totalCount)) {
         return response()->json([
             'status' => 0,
