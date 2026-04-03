@@ -51,6 +51,38 @@ public function landingPagesCounter(Request $request) {
     }
 }
 
+public function genericLandingPagesCounter(Request $request) {
+    $page = $request->input('page');
+    $totalCount = $request->input('totalCount');
+
+    if (!$page || !is_numeric($totalCount)) {
+        return response()->json([
+            'status' => 0,
+            'message' => 'Missing or invalid parameters.'
+        ], Response::HTTP_BAD_REQUEST);
+    }
+
+    $landing_pages_counter = DB::table('landing_pages_counter')->where('page_title', $page)->first();
+
+    if ($landing_pages_counter) {
+        $newValue = ($landing_pages_counter->counter == $totalCount) ? 0 : $landing_pages_counter->counter + 1;
+
+        DB::table('landing_pages_counter')
+            ->where('id', $landing_pages_counter->id)
+            ->update(['counter' => $newValue]);
+
+        return response()->json([
+            'status'  => 1,
+            'counter' => $newValue,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+            'message' => 'Page not found.'
+        ], Response::HTTP_OK);
+    }
+}
+
 
     public function getAdsOptions(Request $request) {
         $campaignOptions = DB::table('compaigns')
