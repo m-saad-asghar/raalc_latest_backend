@@ -535,7 +535,7 @@ $latestLog = DB::table('logs')
             $gclid = $request->query('gclid');
             $phoneNumber = $request->query('phone_number');
 
-            if (empty($gclid) || empty($phoneNumber)) {
+            if (empty($gclid) && empty($phoneNumber)) {
                 return response()->json([
                     'status'  => false,
                     'message' => 'Please provide at least one query parameter: gclid or phone_number',
