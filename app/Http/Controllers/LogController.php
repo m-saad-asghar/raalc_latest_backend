@@ -542,6 +542,11 @@ $latestLog = DB::table('logs')
                 ], Response::HTTP_BAD_REQUEST);
             }
 
+            // Fix: If phone number starts with a space, treat it as a plus sign
+            if ( !empty($phoneNumber) ) {
+                $phoneNumber = '+' . $phoneNumber;
+            }
+
             $query = DB::table('logs')
                 ->select(
                     'id',
