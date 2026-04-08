@@ -528,4 +528,66 @@ $latestLog = DB::table('logs')
         'data' => $latestLog,
     ]);
     }
+
+    public function getLogRecord(Request $request)
+    {
+        try {
+            $gclid = $request->query('gclid');
+            $phoneNumber = $request->query('phone_number');
+
+            if (empty($gclid) && empty($phoneNumber)) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Please provide at least one query parameter: gclid or phone_number',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $query = DB::table('logs')
+                ->select(
+                    'id',
+                    'page_url',
+                    'origin',
+                    'ad_number as utm_campaign',
+                    'compaign_source as utm_source',
+                    'utm_term',
+                    'utm_medium',
+                    'utm_content',
+                    'phone_number',
+                    'gclid',
+                    'message',
+                    'ip_address as ip',
+                    'created_at'
+                );
+
+            if (!empty($gclid)) {
+                $query->where('gclid', $gclid);
+            }
+
+            if (!empty($phoneNumber)) {
+                $query->where('phone_number', $phoneNumber);
+            }
+
+            $log = $query->orderBy('id', 'desc')->first();
+
+            if (!$log) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Log record not found',
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json([
+                'status' => true,
+                'data'   => $log,
+            ], Response::HTTP_OK);
+
+        } catch (\Exception $e) {
+            Log::error('Fetching log record failed', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Failed to fetch log record',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

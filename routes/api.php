@@ -62,6 +62,7 @@ Route::get('get_ads_options', [LogController::class, 'getAdsOptions'])->name('ge
 Route::get('arabic_counter', [LogController::class, 'arabicCounter'])->name('arabicCounter');
 Route::get('landing_pages_counter', [LogController::class, 'landingPagesCounter'])->name('arabicCounter');
 Route::get('counter/{page}/{totalCount}', [LogController::class, 'genericLandingPagesCounter'])->name('genericCounter');
+Route::get('get_log_record', [LogController::class, 'getLogRecord'])->name('getLogRecord');
 Route::get('deleted_teams', [DeleteController::class, 'deletedTeams'])->name('deletedTeams');
 Route::post('recover_teams', [DeleteController::class, 'recoverTeams'])->name('recoverTeams');
 Route::get('deleted_news', [DeleteController::class, 'deletedNews'])->name('deletedNews');
