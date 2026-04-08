@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Carbon\Carbon;
 
@@ -118,47 +119,63 @@ public function genericLandingPagesCounter(Request $request, $page, $totalCount)
     public function saveLog(Request $request)
     {
         try {
+            // Extract phone_number, allow empty or null
+            $phoneNumber = $request->input('phone_number', null);
 
-            if (empty($adNumber) && $request->has('page_url')) {
+            // Initialize variables
+            $adNumber = null;
+            $compaignSource = null;
+            $utmTerm = null;
+            $utmMedium = null;
+            $utmContent = null;
+            $gclid = null;
+
+            if ($request->has('page_url')) {
                 $parsedUrl = parse_url($request->page_url);
-            
                 if (isset($parsedUrl['query'])) {
                     parse_str($parsedUrl['query'], $queryParams);
-            
-                    if (isset($queryParams['gad_campaignid'])) {
-                        $adNumber = $queryParams['gad_campaignid'];
+                    if (empty($adNumber)) {
+                        if (isset($queryParams['gad_campaignid'])) {
+                            $adNumber = $queryParams['gad_campaignid'];
+                        } elseif (isset($queryParams['utm_campaign'])) {
+                            $adNumber = $queryParams['utm_campaign'];
+                        }
                     }
-
-                    elseif (isset($queryParams['utm_campaign'])) {
-                        $adNumber = $queryParams['utm_campaign'];
-                    }
-                }
-            }
-
-            if (empty($compaignSource) && $request->has('page_url')) {
-                $parsedUrl = parse_url($request->page_url);
-            
-                if (isset($parsedUrl['query'])) {
-                    parse_str($parsedUrl['query'], $queryParams);
-            
-                    if (isset($queryParams['utm_source'])) {
+                    if (empty($compaignSource) && isset($queryParams['utm_source'])) {
                         $compaignSource = $queryParams['utm_source'];
+                    }
+                    // Extract new params if available
+                    if (isset($queryParams['utm_term'])) {
+                        $utmTerm = $queryParams['utm_term'];
+                    }
+                    if (isset($queryParams['utm_medium'])) {
+                        $utmMedium = $queryParams['utm_medium'];
+                    }
+                    if (isset($queryParams['utm_content'])) {
+                        $utmContent = $queryParams['utm_content'];
+                    }
+                    if (isset($queryParams['gclid'])) {
+                        $gclid = $queryParams['gclid'];
                     }
                 }
             }
 
             DB::table('logs')->insert([
-                'page_url'   => $request->page_url,
-                'origin'     => $request->origin,
-                'ad_number'  => $adNumber ?? '',
-                'compaign_source'  => $compaignSource ?? 'Undefined',
-                // 'ad_number' => $request->ad_number ?? '',
-                'source'     => $request->source,
-                'type'     => $request->type,
-                'message'    => $request->message,
-                'ip_address' => $request->ip(),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'page_url'      => $request->page_url,
+                'origin'        => $request->origin,
+                'ad_number'     => $adNumber ?? '',
+                'compaign_source' => $compaignSource ?? 'Undefined',
+                'source'        => $request->source,
+                'type'          => $request->type,
+                'message'       => $request->message,
+                'phone_number'  => $phoneNumber,
+                'utm_term'      => $utmTerm,
+                'utm_medium'    => $utmMedium,
+                'utm_content'   => $utmContent,
+                'gclid'         => $gclid,
+                'ip_address'    => $request->ip(),
+                'created_at'    => now(),
+                'updated_at'    => now(),
             ]);
     
             return response()->json([
