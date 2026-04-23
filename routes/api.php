@@ -18,6 +18,7 @@ use App\Http\Controllers\Apis\FaqLawController;
 use App\Http\Controllers\Apis\AppContentController;
 use App\Http\Controllers\Apis\BookingController;
 use App\Http\Controllers\Apis\TimeSlotController;
+use App\Http\Controllers\Apis\AuthorController;
 use App\Http\Controllers\Apis\ServiceCategoryController;
 use App\Http\Controllers\Apis\NewsCategoryController;
 use App\Http\Controllers\Apis\ReviewController;
@@ -118,6 +119,12 @@ Route::post('/timeSlots', [TimeSlotController::class, 'fetchSlotsNew']);
 Route::group(['prefix' => 'teams', 'middleware' => 'validateLang'], function() {
     Route::get('/{lang?}/{per_page_count?}', [TeamController::class, 'index'])->name('list');
     Route::get('/singleDetail/{id}/{lang?}', [TeamController::class, 'show'])->name('fetch');
+});
+
+// Authors Get Data Apis (internal use only)
+Route::group(['prefix' => 'authors', 'middleware' => 'validateLang'], function() {
+    Route::get('/{lang?}/{per_page_count?}', [AuthorController::class, 'index'])->name('authorsList');
+    Route::get('/singleDetail/{id}/{lang?}', [AuthorController::class, 'show'])->name('authorFetch');
 });
 
 // Legal Secretary Get Data Apis
@@ -331,6 +338,13 @@ Route::middleware(['auth:api', 'jwt.expired'])->group(function () {
         
     });
     
+    // For Admin Author Resource
+    Route::group(['prefix' => 'authors', 'middleware' => 'validateLang'], function() {
+        Route::post('/', [AuthorController::class, 'store']);
+        Route::post('/{id}', [AuthorController::class, 'update']);
+        Route::delete('/{id}', [AuthorController::class, 'destroy']);
+    });
+
     // For Admin Team Resource 
     Route::group(['prefix' => 'legalSecretaries', 'middleware' => 'validateLang'], function() {
         Route::post('/{lang?}', [LegalSecretaryController::class, 'store']);

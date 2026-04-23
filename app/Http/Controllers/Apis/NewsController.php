@@ -75,9 +75,9 @@ class NewsController extends Controller
         try {
 
             if(!empty($slug) && $slug != null){
-                $news = News::where('slug','!=',$slug)->where("active", 1)->orderBy("date","DESC")->limit(3)->get();
+                $news = News::with('author')->where('slug','!=',$slug)->where("active", 1)->orderBy("date","DESC")->limit(3)->get();
             }else{
-                $newsQuery = News::where("active", 1)->orderBy('date', 'DESC');
+                $newsQuery = News::with('author')->where("active", 1)->orderBy('date', 'DESC');
                 
                  // Implement pagination if $id is null
                 if ($limit == 0) {
@@ -123,9 +123,42 @@ class NewsController extends Controller
                 
                 $date = $n->date ?? "N/A";
 
+                // Fetch author data using relationship
+                $authorData = null;
+                if ($n->author) {
+                    $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $n->author->id)
+                        ->where('lang', $lang)
+                        ->first();
+
+                    if (!$authorTranslation) {
+                        $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $n->author->id)
+                            ->where('lang', 'en')
+                            ->first();
+                    }
+
+                    $authorName = $authorDesignation = $authorBio = "";
+                    if ($authorTranslation) {
+                        $authorFields = json_decode($authorTranslation->fields_value, true);
+                        $authorName        = $authorFields['name'] ?? "";
+                        $authorDesignation = $authorFields['designation'] ?? "";
+                        $authorBio         = $authorFields['bio'] ?? "";
+                    }
+
+                    $authorData = [
+                        'id'          => $n->author->id,
+                        'image'       => $n->author->image ? $this->getImageUrl($n->author->image) : null,
+                        'active'      => $n->author->active,
+                        'name'        => $authorName,
+                        'designation' => $authorDesignation,
+                        'bio'         => $authorBio,
+                    ];
+                }
+
                 return [
                     'id'=>$n->id,
                     'slug'=>$n->slug,
+                    'author_id'=>$n->author_id,
+                    'author'=>$authorData,
                     'meta_tag'=>$meta_tag,
                     'meta_description'=>$meta_description,
                     'scheme_code'=>$scheme_code,
@@ -333,6 +366,10 @@ class NewsController extends Controller
             if ($request->has('date')) {
                 $news->date = $request->date;
             }
+
+            if ($request->has('author_id')) {
+                $news->author_id = $request->author_id;
+            }
             
             $imgPaths = [];
             if ($news->images) {
@@ -397,35 +434,34 @@ class NewsController extends Controller
     {
         try {
 
-            $news = News::where('slug',$slug)->first();
-            // return $news;
+            $news = News::with('author')->where('slug', $slug)->first();
             $dataArray = array();
 
-            if(!$news){
+            if (!$news) {
                 return response()->json(['status' => 'false', 'message' => 'News not found'], Response::HTTP_NOT_FOUND);
             }
 
-            $news_translation = NewsTranslation::where('news_id', $news->id)->where('language',$lang)->first();
-            
-            $imagesA = array();
-            $extImage = explode(",",$news->images);
+            $news_translation = NewsTranslation::where('news_id', $news->id)->where('language', $lang)->first();
 
-            if(!empty($extImage) && count($extImage) != 0){
-                foreach($extImage as $key => $eimg){
+            $imagesA = array();
+            $extImage = explode(",", $news->images);
+
+            if (!empty($extImage) && count($extImage) != 0) {
+                foreach ($extImage as $key => $eimg) {
                     $imagesA[$key]['old_images'] = $eimg ? $eimg : null;
                     $imagesA[$key]['image'] = $eimg ? $this->getImageUrl($eimg) : null;
                 }
             }
-            
-            if(!empty($news_translation)){
+
+            if (!empty($news_translation)) {
                 $dataArray = json_decode($news_translation->field_values, true);
             }
-    
+
             $date = $news->date;
             $name = $author_name = $title = $author_details = $description = "N/A";
             $meta_tag = $meta_description = $scheme_code = "";
 
-            if($news_translation){
+            if ($news_translation) {
                 $dataArray = json_decode($news_translation->field_values, true);
                 $meta_tag = $dataArray['meta_tag'] ?? "";
                 $meta_description = $dataArray['meta_description'] ?? "";
@@ -436,34 +472,63 @@ class NewsController extends Controller
                 $name = $dataArray['name'] ?? "N/A";
                 $description = $dataArray['description'] ?? "N/A";
             }
-           
-            if(!empty($this->index($lang,0,$news->slug)->original['data'])){
-                $latestData = $this->index($lang,0,$news->slug)->original['data'];
-            }else{
+
+            // Fetch author data using relationship
+            $authorData = null;
+            if ($news->author) {
+                $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $news->author->id)
+                    ->where('lang', $lang)
+                    ->first();
+
+                if (!$authorTranslation) {
+                    $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $news->author->id)
+                        ->where('lang', 'en')
+                        ->first();
+                }
+
+                $authorName = $authorDesignation = $authorBio = "";
+                if ($authorTranslation) {
+                    $authorFields = json_decode($authorTranslation->fields_value, true);
+                    $authorName        = $authorFields['name'] ?? "";
+                    $authorDesignation = $authorFields['designation'] ?? "";
+                    $authorBio         = $authorFields['bio'] ?? "";
+                }
+
+                $authorData = [
+                    'id'          => $news->author->id,
+                    'image'       => $news->author->image ? $this->getImageUrl($news->author->image) : null,
+                    'active'      => $news->author->active,
+                    'name'        => $authorName,
+                    'designation' => $authorDesignation,
+                    'bio'         => $authorBio,
+                ];
+            }
+
+            if (!empty($this->index($lang, 0, $news->slug)->original['data'])) {
+                $latestData = $this->index($lang, 0, $news->slug)->original['data'];
+            } else {
                 $latestData = [];
             }
 
             return response()->json([
                 'status' => 'true',
                 'data' => [
-                    'id'=>$news->id,
-                    'slug'=> $news->slug,
-                    'meta_tag'=>$meta_tag,
-                    'meta_description'=>$meta_description,
-                    'scheme_code'=>$scheme_code,
-                    'author_name'=>$author_name,
-                    'title'=>$title,
-                    'author_details'=>$author_details,
-                    'name'=>$name,
-                    'description'=>$description,
-                    'news_images'=>$imagesA,
-                    'date'=> $date ?? 'N/A'
-            ], 'latest_data' => $latestData],Response::HTTP_OK);
-
-            // return response()->json([
-            //     'status' => 'true',
-            //     'data' => $dataArray
-            // ], Response::HTTP_OK);
+                    'id' => $news->id,
+                    'author_id' => $news->author_id,
+                    'author' => $authorData,
+                    'slug' => $news->slug,
+                    'meta_tag' => $meta_tag,
+                    'meta_description' => $meta_description,
+                    'scheme_code' => $scheme_code,
+                    'author_name' => $author_name,
+                    'title' => $title,
+                    'author_details' => $author_details,
+                    'name' => $name,
+                    'description' => $description,
+                    'news_images' => $imagesA,
+                    'date' => $date ?? 'N/A'
+                ], 'latest_data' => $latestData
+            ], Response::HTTP_OK);
 
         } catch (\Exception $ex) {
             return response()->json([
