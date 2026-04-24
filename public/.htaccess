@@ -19,3 +19,37 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ----------------------------------------------------------------------
+# | Caching for image assets only                                       |
+# ----------------------------------------------------------------------
+# Uploaded images under /storage/* are served with a 7-day cache.
+# Laravel stores them with hashed filenames, so updates produce a new
+# URL and the browser fetches the new image automatically.
+
+<IfModule mod_mime.c>
+    AddType image/webp                          .webp
+    AddType image/avif                          .avif
+    AddType image/svg+xml                       .svg .svgz
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Images only
+    ExpiresByType image/jpeg                    "access plus 7 days"
+    ExpiresByType image/png                     "access plus 7 days"
+    ExpiresByType image/gif                     "access plus 7 days"
+    ExpiresByType image/webp                    "access plus 7 days"
+    ExpiresByType image/avif                    "access plus 7 days"
+    ExpiresByType image/svg+xml                 "access plus 7 days"
+    ExpiresByType image/x-icon                  "access plus 7 days"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Cache images for 7 days
+    <FilesMatch "\.(?i:jpe?g|png|gif|webp|avif|svg|svgz|ico)$">
+        Header set Cache-Control "public, max-age=604800"
+        Header unset Pragma
+    </FilesMatch>
+</IfModule>
