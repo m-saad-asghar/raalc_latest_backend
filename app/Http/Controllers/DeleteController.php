@@ -263,6 +263,115 @@ public function recoverServices(Request $request) {
     }
 }
 
+public function deletedAuthors(Request $request) {
+    $perPage     = (int) $request->get('per_page', 15);
+    $currentPage = (int) $request->get('page', 1);
+    $offset      = ($currentPage - 1) * $perPage;
+    $filterName  = $request->get('name');
+    $lang        = $request->get('lang', 'en');
+
+    // Step 1: paginate the authors table only (uses index on `active`).
+    $authorsQuery = DB::table('authors')
+        ->where('active', 0)
+        ->select('id', 'image', 'updated_at', 'active');
+
+    // Optional name filter — apply via a sub-join only when needed.
+    if (!empty($filterName)) {
+        $authorsQuery->whereExists(function ($q) use ($filterName, $lang) {
+            $q->select(DB::raw(1))
+              ->from('author_translations as at')
+              ->whereColumn('at.author_id', 'authors.id')
+              ->where('at.lang', $lang)
+              ->whereRaw(
+                  'LOWER(JSON_UNQUOTE(JSON_EXTRACT(at.fields_value, "$.name"))) LIKE ?',
+                  ['%' . strtolower($filterName) . '%']
+              );
+        });
+    }
+
+    $totalCount = (clone $authorsQuery)->count();
+
+    $authors = $authorsQuery
+        ->orderByDesc('id')
+        ->offset($offset)
+        ->limit($perPage)
+        ->get();
+
+    if ($authors->isEmpty()) {
+        return response()->json([
+            'status'       => 0,
+            'authors'      => [],
+            'total'        => 0,
+            'current_page' => $currentPage,
+            'per_page'     => $perPage,
+        ], Response::HTTP_OK);
+    }
+
+    // Step 2: fetch translations for paginated ids in a single query.
+    $authorIds = $authors->pluck('id')->all();
+
+    $translations = DB::table('author_translations')
+        ->whereIn('author_id', $authorIds)
+        ->where('lang', $lang)
+        ->select('author_id', 'fields_value')
+        ->get()
+        ->keyBy('author_id');
+
+    $baseUrl = 'https://api.raalc.ae/storage/';
+
+    $authors = $authors->map(function ($author) use ($translations, $baseUrl) {
+        $name = null;
+        $designation = null;
+
+        if (isset($translations[$author->id])) {
+            $fields = json_decode($translations[$author->id]->fields_value, true) ?: [];
+            $name        = $fields['name'] ?? null;
+            $designation = $fields['designation'] ?? null;
+        }
+
+        return [
+            'id'          => $author->id,
+            'image'       => $author->image ? $baseUrl . $author->image : null,
+            'updated_at'  => $author->updated_at,
+            'active'      => $author->active,
+            'name'        => $name,
+            'designation' => $designation,
+        ];
+    });
+
+    return response()->json([
+        'status'       => 1,
+        'authors'      => $authors,
+        'total'        => $totalCount,
+        'current_page' => $currentPage,
+        'per_page'     => $perPage,
+    ], Response::HTTP_OK);
+}
+
+public function recoverAuthors(Request $request) {
+
+    $id = $request->id;
+
+    $authorExists = DB::table('authors')
+        ->where('id', $id)
+        ->first();
+
+    if ($authorExists) {
+        DB::table('authors')
+            ->where('id', $id)
+            ->update(['active' => 1]);
+
+        return response()->json([
+            'status' => 1,
+        ], Response::HTTP_OK);
+    } else {
+        return response()->json([
+            'status' => 0,
+            'message' => 'Author not found.'
+        ], Response::HTTP_OK);
+    }
+}
+
 public function recoverEvents(Request $request) {
     
     $id = $request->id;

@@ -72,6 +72,8 @@ Route::get('deleted_services', [DeleteController::class, 'deletedServices'])->na
 Route::post('recover_services', [DeleteController::class, 'recoverServices'])->name('recoverServices');
 Route::get('deleted_events', [DeleteController::class, 'deletedEvents'])->name('deletedEvents');
 Route::post('recover_events', [DeleteController::class, 'recoverEvents'])->name('recoverEvents');
+Route::get('deleted_authors', [DeleteController::class, 'deletedAuthors'])->name('deletedAuthors');
+Route::post('recover_authors', [DeleteController::class, 'recoverAuthors'])->name('recoverAuthors');
 Route::post('/save_services_data', [ServiceDataController::class, 'saveServicesData']);
 Route::prefix('app')->group(function () {
     Route::post('/register', [AppController::class, 'register']);
