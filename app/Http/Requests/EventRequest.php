@@ -26,7 +26,7 @@ class EventRequest extends FormRequest
             "meta_description" => "required",
             "title" => "required",
             "images.*" => 'nullable|image|mimes:jpg,png,jpeg,webp,svg',
-            "author_name" => "required",
+            // "author_name" => "required",
             "date" => "required|date"
         ];
     }

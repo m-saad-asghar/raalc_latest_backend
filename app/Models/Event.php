@@ -16,5 +16,11 @@ class Event extends Model
         "images",
         "date",
         "created_by",
+        "author_id",
     ];
+
+    public function author()
+    {
+        return $this->belongsTo(\App\Models\Author::class, 'author_id');
+    }
 }

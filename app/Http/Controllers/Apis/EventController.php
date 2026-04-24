@@ -70,9 +70,9 @@ class EventController extends Controller
         try {
 
             if (!empty($slug) && $slug != null) {
-                $eventsQuery = Event::where('slug', '!=', $slug)->where('active', 1)->orderBy('date', 'DESC');
+                $eventsQuery = Event::with('author')->where('slug', '!=', $slug)->where('active', 1)->orderBy('date', 'DESC');
             } else {
-                $eventsQuery = Event::where('active', 1)->orderBy('date', 'DESC');
+                $eventsQuery = Event::with('author')->where('active', 1)->orderBy('date', 'DESC');
             }
     
             // Implement pagination
@@ -124,10 +124,43 @@ class EventController extends Controller
                     $date = $e->date ?? "N/A";
                 }
                 
+                // Fetch author data using relationship
+                $authorData = null;
+                if ($e->author) {
+                    $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $e->author->id)
+                        ->where('lang', $lang)
+                        ->first();
+
+                    if (!$authorTranslation) {
+                        $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $e->author->id)
+                            ->where('lang', 'en')
+                            ->first();
+                    }
+
+                    $authorName = $authorDesignation = $authorBio = "";
+                    if ($authorTranslation) {
+                        $authorFields = json_decode($authorTranslation->fields_value, true);
+                        $authorName        = $authorFields['name'] ?? "";
+                        $authorDesignation = $authorFields['designation'] ?? "";
+                        $authorBio         = $authorFields['bio'] ?? "";
+                    }
+
+                    $authorData = [
+                        'id'          => $e->author->id,
+                        'image'       => $e->author->image ? $this->getImageUrl($e->author->image) : null,
+                        'active'      => $e->author->active,
+                        'name'        => $authorName,
+                        'designation' => $authorDesignation,
+                        'bio'         => $authorBio,
+                    ];
+                }
+
                 // return $translations;
                 return [
                     'id'=>$e->id,
                     'slug'=>$e->slug,
+                    'author_id'=>$e->author_id,
+                    'author'=>$authorData,
                     'meta_tag'=>$meta_tag ?? "N/A",
                     'meta_description'=>$meta_description ?? "N/A",
                     'scheme_code'=>$scheme_code ?? "N/A",
@@ -221,6 +254,9 @@ class EventController extends Controller
                 if($request->has('date')){
                     $event->date = $request->date;
                 }
+                if ($request->has('author_id')) {
+                    $event->author_id = $request->author_id;
+                }
                 // $event->slug = Str::slug($request->title);
                 $event->slug = $request->filled('slug') ? $request->slug : Str::slug($request->title);
                 $event->created_by = $this->user->id;
@@ -308,6 +344,9 @@ class EventController extends Controller
 
             }
             $event->date = $request->date;
+            if ($request->has('author_id')) {
+                $event->author_id = $request->author_id;
+            }
             // $event->slug = Str::slug($request->title);
             $event->slug = $request->filled('slug') ? $request->slug : Str::slug($request->title);
             $event->images = implode(",", $imgPaths);
@@ -344,7 +383,7 @@ class EventController extends Controller
     {
         try {
 
-            $event = Event::where('slug',$slug)->first();
+            $event = Event::with('author')->where('slug',$slug)->first();
             $dataArray = array();
 
             if(!$event){
@@ -386,6 +425,37 @@ class EventController extends Controller
             }
             
             
+            // Fetch author data using relationship
+            $authorData = null;
+            if ($event->author) {
+                $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $event->author->id)
+                    ->where('lang', $lang)
+                    ->first();
+
+                if (!$authorTranslation) {
+                    $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $event->author->id)
+                        ->where('lang', 'en')
+                        ->first();
+                }
+
+                $authorName = $authorDesignation = $authorBio = "";
+                if ($authorTranslation) {
+                    $authorFields = json_decode($authorTranslation->fields_value, true);
+                    $authorName        = $authorFields['name'] ?? "";
+                    $authorDesignation = $authorFields['designation'] ?? "";
+                    $authorBio         = $authorFields['bio'] ?? "";
+                }
+
+                $authorData = [
+                    'id'          => $event->author->id,
+                    'image'       => $event->author->image ? $this->getImageUrl($event->author->image) : null,
+                    'active'      => $event->author->active,
+                    'name'        => $authorName,
+                    'designation' => $authorDesignation,
+                    'bio'         => $authorBio,
+                ];
+            }
+
             if(!empty($this->index($lang,0,$event->slug)->original['data'])){
                 $latestData = $this->index($lang,2,$event->slug)->original['data'];
             }else{
@@ -396,6 +466,8 @@ class EventController extends Controller
                 'status' => 'true',
                 'data' => [
                     'id'=>$event->id,
+                    'author_id'=>$event->author_id,
+                    'author'=>$authorData,
                     'slug'=> $event->slug,
                     'meta_tag'=>$meta_tag,
                     'meta_description'=>$meta_description,

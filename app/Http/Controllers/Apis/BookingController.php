@@ -290,7 +290,7 @@ class BookingController extends Controller
                             ->when(!empty($client_id), function ($query) use ($client_id) {
                                 return $query->where('client_id', $client_id);
                             })
-                            ->where('language', $lang)
+                            // ->where('language', $lang)
                             ->orderBy('updated_at','DESC')
                             ->paginate($per_page);
     
