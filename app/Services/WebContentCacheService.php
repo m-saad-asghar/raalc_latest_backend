@@ -65,22 +65,28 @@ class WebContentCacheService
     /**
      * Remember a value in the file cache and track its key for flushing.
      *
+     * Returns an array:
+     *   ['value' => mixed, 'is_cache' => bool]
+     *
+     * is_cache = true  → response was served from the file cache.
+     * is_cache = false → response was built fresh (cache disabled or cache miss).
+     *
      * @param  string   $key
      * @param  Closure  $callback
      * @param  int|null $ttl
-     * @return mixed
+     * @return array{value: mixed, is_cache: bool}
      */
-    public static function remember(string $key, Closure $callback, ?int $ttl = null)
+    public static function remember(string $key, Closure $callback, ?int $ttl = null): array
     {
         // Cache disabled: always run the callback fresh and don't write.
         if (!self::ENABLED) {
-            return $callback();
+            return ['value' => $callback(), 'is_cache' => false];
         }
 
         $store = Cache::store(self::STORE);
 
         if ($store->has($key)) {
-            return $store->get($key);
+            return ['value' => $store->get($key), 'is_cache' => true];
         }
 
         $value = $callback();
@@ -88,7 +94,7 @@ class WebContentCacheService
         $store->put($key, $value, $ttl ?? self::TTL);
         self::registerKey($key);
 
-        return $value;
+        return ['value' => $value, 'is_cache' => false];
     }
 
     /**

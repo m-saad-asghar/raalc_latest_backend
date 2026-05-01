@@ -924,17 +924,21 @@ $webContentId = $webContent->id;
     {
         try {
             $cacheKey = WebContentCacheService::homePageKey($id, $lang);
-            $cached = WebContentCacheService::remember($cacheKey, function () use ($id, $lang) {
+            $result   = WebContentCacheService::remember($cacheKey, function () use ($id, $lang) {
                 return $this->buildHomePageContent($id, $lang);
             });
 
-            if (isset($cached['__not_found']) && $cached['__not_found'] === true) {
+            $payload  = $result['value'];
+            $isCache  = $result['is_cache'];
+
+            if (isset($payload['__not_found']) && $payload['__not_found'] === true) {
                 return response()->json(['status' => 'false', 'message' => 'Home content not found'], Response::HTTP_NOT_FOUND);
             }
 
             return response()->json([
-                'status' => 'true',
-                'data' => $cached
+                'status'   => 'true',
+                'is_cache' => $isCache,
+                'data'     => $payload,
             ], Response::HTTP_OK);
         } catch (\Exception $ex) {
             return response()->json(['status' => 'false', 'message' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -1137,13 +1141,14 @@ $webContentId = $webContent->id;
     public function combineContent($lang){
         try {
             $cacheKey = WebContentCacheService::combineKey($lang);
-            $cached = WebContentCacheService::remember($cacheKey, function () use ($lang) {
+            $result   = WebContentCacheService::remember($cacheKey, function () use ($lang) {
                 return $this->buildCombineContent($lang);
             });
 
             return response()->json([
-                'status' => 'true',
-                'data' => $cached
+                'status'   => 'true',
+                'is_cache' => $result['is_cache'],
+                'data'     => $result['value'],
             ], Response::HTTP_OK);
         } catch (\Exception $ex) {
             return response()->json(['status' => 'false', 'message' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
