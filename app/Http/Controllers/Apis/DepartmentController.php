@@ -59,13 +59,45 @@ class DepartmentController extends Controller
             // Implement pagination
             $perPage = request()->input('per_page', $per_page);
             $departments = $departmentsQuery->paginate($perPage);
-    
+
+            /* -------------------------------------------------------------
+             * N+1 fix: bulk pre-load DepartmentTranslation rows for the
+             * departments on this page in a single query, keyed by
+             * department_id for O(1) lookups.
+             * ------------------------------------------------------------- */
+            $departmentIds = collect($departments->items() ?? $departments->all())->pluck('id')->all();
+
+            $translationsByDept = DepartmentTranslation::whereIn('department_id', $departmentIds)
+                ->where('lang', $lang)
+                ->get(['department_id', 'fields_value'])
+                ->keyBy('department_id');
+
+            /* -------------------------------------------------------------
+             * N+1 fix: collect every team id referenced by the departments
+             * on this page and load all of them with a single query, keyed
+             * by id for O(1) lookups inside the map() loop.
+             * ------------------------------------------------------------- */
+            $allTeamIds = [];
+            foreach ($departments as $deptForIds) {
+                if (!empty($deptForIds->department_team_ids) && is_array($deptForIds->department_team_ids)) {
+                    foreach ($deptForIds->department_team_ids as $tid) {
+                        $allTeamIds[] = $tid;
+                    }
+                }
+            }
+            $allTeamIds = array_values(array_unique($allTeamIds));
+
+            $teamsById = collect();
+            if (!empty($allTeamIds)) {
+                $teamsById = Team::whereIn('id', $allTeamIds)
+                    ->get(['id', 'lowyer_image'])
+                    ->keyBy('id');
+            }
+
             // Retrieve translations for each department
-            $departmentsWithTranslations = $departments->map(function ($department) use ($lang) {
+            $departmentsWithTranslations = $departments->map(function ($department) use ($lang, $translationsByDept, $teamsById) {
                 $id = $department->id;
-                $translation = DepartmentTranslation::where('department_id', $id)
-                    ->where('lang', $lang)
-                    ->first();
+                $translation = $translationsByDept->get($id);
     
                 $department_image = null;
                 if (!empty($department->department_image) && $department->department_image != null) {
@@ -75,16 +107,31 @@ class DepartmentController extends Controller
                 $teamIds = $department->department_team_ids;
                 
                 $teams = collect(); // Initialize as an empty Collection
+                $teamCount = 0;
     
                 if (!empty($teamIds) && $teamIds != null) {
-                    $teams = Team::whereIn('id', $teamIds)->get(['id', 'lowyer_image']);
-                    
-                    // Get the count of the teams
+                    // Build per-department teams from the pre-loaded map.
+                    // We construct fresh arrays (rather than mutating the
+                    // shared Eloquent models) so that getImageUrl() is not
+                    // applied twice when a team is shared across multiple
+                    // departments.  The serialized JSON output is identical
+                    // to the previous Eloquent-collection output:
+                    //   [{ "id": x, "lowyer_image": "..." }, ...]
+                    $teams = collect($teamIds)
+                        ->map(function ($tid) use ($teamsById) {
+                            $t = $teamsById->get($tid);
+                            if (!$t) {
+                                return null;
+                            }
+                            return [
+                                'id'           => $t->id,
+                                'lowyer_image' => $t->lowyer_image ? $this->getImageUrl($t->lowyer_image) : "",
+                            ];
+                        })
+                        ->filter()
+                        ->values();
+
                     $teamCount = $teams->count();
-                    
-                    $teams->each(function ($team) {
-                        $team->lowyer_image = $team->lowyer_image ? $this->getImageUrl($team->lowyer_image) : "";
-                    });
                 }
                 
                 $title = $description = "N/A";

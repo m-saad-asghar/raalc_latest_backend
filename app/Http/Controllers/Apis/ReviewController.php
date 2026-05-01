@@ -78,10 +78,16 @@ class ReviewController extends Controller
 
             $translations = $dataJoin->map(function ($r) use ($lang) {
 
-                $translation = $this->translation::where('review_id', $r->review_id)->where('lang', $lang)->first();
-
-                // return $translation;
-
+                /* ---------------------------------------------------------
+                 * N+1 fix: the join above already pulls the translation row
+                 * for the requested language together with every review, so
+                 * we can read the field_values straight off $r instead of
+                 * issuing a per-row SELECT against review_translations.
+                 * The legacy 'en' fallback never executed in practice (the
+                 * inner join filters on lang, so any row without a
+                 * translation for $lang is excluded from the result set),
+                 * which means dropping it does not change the response.
+                 * --------------------------------------------------------- */
                 $review_image = null;
                 if (!empty($r->review_images) && $r->review_images != null) {
                     $review_image = $this->getImageUrl($r->review_images);
@@ -89,19 +95,8 @@ class ReviewController extends Controller
 
                 $name = $occupation = $review = "";
 
-                if (empty($translation)) {
-                    // For Defualt Language Data Fetch
-                    $defaultData = $this->translation::where('review_id', $r->id)
-                        ->where('lang', 'en')
-                        ->first();
-
-                    if (!empty($defaultData)) {
-                        $translation = $defaultData;
-                    }
-                }
-
-                if ($translation != null) {
-                    $decodeValue = json_decode($translation->field_values, true);
+                if (!empty($r->field_values)) {
+                    $decodeValue = json_decode($r->field_values, true);
                     $name = $decodeValue['name'] ?? "N/A";
                     $occupation = $decodeValue['occupation'] ?? "N/A";
                     $review = $decodeValue['review'] ?? "N/A";

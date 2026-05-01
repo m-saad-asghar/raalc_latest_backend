@@ -93,8 +93,34 @@ class NewsController extends Controller
             }
             
             
-            $news_translations = $news->map(function($n) use ($lang) {
-                $translations = NewsTranslation::where('news_id', $n->id)->where('language',$lang)->first();
+            /* -------------------------------------------------------------
+             * N+1 fix: bulk pre-load NewsTranslation rows for the news on
+             * this page in a single query, plus AuthorTranslation rows for
+             * every referenced author (current language and 'en' fallback).
+             * Keys give O(1) lookups inside the map() loop below.
+             * ------------------------------------------------------------- */
+            $newsItems = collect($news instanceof \Illuminate\Pagination\AbstractPaginator ? $news->items() : $news->all());
+            $newsIds   = $newsItems->pluck('id')->all();
+
+            $newsTranslationsById = NewsTranslation::whereIn('news_id', $newsIds)
+                ->where('language', $lang)
+                ->get(['news_id', 'field_values'])
+                ->keyBy('news_id');
+
+            $authorIds = $newsItems->pluck('author.id')->filter()->unique()->values()->all();
+            $authorTranslationsByAuthor = collect();
+            if (!empty($authorIds)) {
+                $authorTranslationsByAuthor = \App\Models\AuthorTranslation::whereIn('author_id', $authorIds)
+                    ->whereIn('lang', array_unique([$lang, 'en']))
+                    ->get(['author_id', 'lang', 'fields_value'])
+                    ->groupBy('author_id')
+                    ->map(function ($rows) {
+                        return $rows->keyBy('lang');
+                    });
+            }
+
+            $news_translations = $news->map(function($n) use ($lang, $newsTranslationsById, $authorTranslationsByAuthor) {
+                $translations = $newsTranslationsById->get($n->id);
                 
                 $imagesA = array();
                 $extImage = explode(",",$n->images);
@@ -126,14 +152,11 @@ class NewsController extends Controller
                 // Fetch author data using relationship
                 $authorData = null;
                 if ($n->author) {
-                    $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $n->author->id)
-                        ->where('lang', $lang)
-                        ->first();
-
-                    if (!$authorTranslation) {
-                        $authorTranslation = \App\Models\AuthorTranslation::where('author_id', $n->author->id)
-                            ->where('lang', 'en')
-                            ->first();
+                    $authorTranslation = null;
+                    if (isset($authorTranslationsByAuthor[$n->author->id])) {
+                        $authorTranslation = $authorTranslationsByAuthor[$n->author->id][$lang]
+                            ?? $authorTranslationsByAuthor[$n->author->id]['en']
+                            ?? null;
                     }
 
                     $authorName = $authorDesignation = $authorBio = "";

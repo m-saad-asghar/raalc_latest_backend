@@ -698,8 +698,25 @@ class EventController extends Controller
                 return response()->json(['status' => 'false', 'message' => 'Events not found'], Response::HTTP_NOT_FOUND);
             }
             
-            $event_translations = $events->map(function($e) use ($lang) {
-                $translations = EventTranslation::where('event_id',$e->id)->where('language',$lang)->first();
+            /* -------------------------------------------------------------
+             * N+1 fix: bulk pre-load EventTranslation rows for the events
+             * on this page in a single query (current language plus the
+             * 'en' fallback), keyed by [event_id][language] for O(1)
+             * lookups inside the map() loop below.
+             * ------------------------------------------------------------- */
+            $eventIds = collect($events->items() ?? $events->all())->pluck('id')->all();
+            $translationsByEvent = EventTranslation::whereIn('event_id', $eventIds)
+                ->whereIn('language', array_unique([$lang, 'en']))
+                ->get(['event_id', 'language', 'field_values'])
+                ->groupBy('event_id')
+                ->map(function ($rows) {
+                    return $rows->keyBy('language');
+                });
+
+            $event_translations = $events->map(function($e) use ($lang, $translationsByEvent) {
+                $translations = isset($translationsByEvent[$e->id])
+                    ? ($translationsByEvent[$e->id][$lang] ?? null)
+                    : null;
                 
                 $imagesA = array();
                 $extImage = explode(",",$e->images);
@@ -709,8 +726,10 @@ class EventController extends Controller
                 }
                 
                 if(!$translations){
-                    $default = EventTranslation::where('event_id',$e->id)->where('language','en')->first();
-                    $fieldvalues = json_decode($default->field_values, true);
+                    $default = isset($translationsByEvent[$e->id])
+                        ? ($translationsByEvent[$e->id]['en'] ?? null)
+                        : null;
+                    $fieldvalues = $default ? json_decode($default->field_values, true) : [];
                     $title = $fieldvalues['title']?? "N/A";
                 }else{
                     

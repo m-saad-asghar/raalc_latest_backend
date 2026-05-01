@@ -340,51 +340,80 @@ class ServiceCategoryController extends Controller
             if ($services->isEmpty()) {
                 return response()->json(['status' => 'false', 'message' => 'Service not found'], Response::HTTP_NOT_FOUND);
             }
-    
+
+            /* -------------------------------------------------------------
+             * N+1 fix: bulk pre-load all ServiceTranslation rows for the
+             * services on this page in a single query (current language and
+             * 'en' fallback), keyed by [service_id][language] for O(1)
+             * lookups inside the reduce() loop below.
+             * ------------------------------------------------------------- */
+            $serviceIds = $services->pluck('id')->all();
+
+            $translationsByService = ServiceTranslation::whereIn('service_id', $serviceIds)
+                ->whereIn('language', array_unique([$lang, 'en']))
+                ->get(['service_id', 'language', 'translated_value'])
+                ->groupBy('service_id')
+                ->map(function ($rows) {
+                    return $rows->keyBy('language');
+                });
+
+            /* -------------------------------------------------------------
+             * N+1 fix: bulk pre-load every referenced ServiceCategory row in
+             * a single query (with the current language and 'en' fallback
+             * extracted as JSON columns), keyed by category id.
+             * ------------------------------------------------------------- */
+            $categoryIds = $services->pluck('service_category_id')->filter()->unique()->values()->all();
+
+            $categoriesById = collect();
+            if (!empty($categoryIds)) {
+                $categoriesById = $this->servicecategory::whereIn('id', $categoryIds)
+                    ->selectRaw(
+                        'id, '
+                        . 'JSON_UNQUOTE(JSON_EXTRACT(service_category_values, \'$."' . $lang . '".category_title\')) as category_title_lang, '
+                        . 'JSON_UNQUOTE(JSON_EXTRACT(service_category_values, \'$."en".category_title\')) as category_title_en'
+                    )
+                    ->get()
+                    ->keyBy('id');
+            }
+
             // Retrieve translations for each department
-            $fetchServicesMenu = $services->reduce(function ($dataArray, $service) use ($lang) {
+            $fetchServicesMenu = $services->reduce(function ($dataArray, $service) use ($lang, $translationsByService, $categoriesById) {
 
                 $id = $service->id;
                 $service_id = $service->id;
-                $translation = ServiceTranslation::where('service_id', $id)
-                ->where('language', $lang)
-                ->first();
-            
+
+                // Resolve translation from the pre-loaded map (lang -> en fallback).
+                $translation = null;
+                if (isset($translationsByService[$id])) {
+                    $translation = $translationsByService[$id][$lang]
+                        ?? $translationsByService[$id]['en']
+                        ?? null;
+                }
+
                 $translatedData = [];
                 if (!empty($translation)) {
-                    // Decode the JSON translation data
                     $translatedData = json_decode($translation->translated_value, true);
-                } else {
-                    // For Default Language Data Fetch
-                    $defaultData = ServiceTranslation::where('service_id', $id)
-                        ->where('language', 'en')
-                        ->first();
-            
-                    if (!empty($defaultData)) {
-                        // Decode the JSON translation data
-                        $translatedData = json_decode($defaultData->translated_value, true);
-                    }
                 }
-            
+
                 $title = "";
                 $relatedServices = [];  // Initialize or reset $relatedServices for each service
             
                 if (!empty($service->service_category_id) && $service->service_category_id != null) {
                     $service_category_id = $service->service_category_id;
-                    
-                    $categoryData = $this->servicecategory::whereNotNull('service_category_values->' . $lang . '->category_title')
-                        ->where('id', $service_category_id)
-                        ->selectRaw('JSON_UNQUOTE(JSON_EXTRACT(service_category_values, \'$."' . $lang . '".category_title\')) as category_title')
-                        ->first();
 
-                    if(!$categoryData){
-                        $categoryData = $this->servicecategory::whereNotNull('service_category_values->' . 'en' . '->category_title')
-                        ->where('id', $service_category_id)
-                        ->selectRaw('JSON_UNQUOTE(JSON_EXTRACT(service_category_values, \'$."' . 'en' . '".category_title\')) as category_title')
-                        ->first();
+                    // Resolve category title from pre-loaded map (lang -> en fallback).
+                    $categoryRow = $categoriesById->get($service_category_id);
+                    $categoryTitle = null;
+                    if ($categoryRow) {
+                        $categoryTitle = !empty($categoryRow->category_title_lang)
+                            ? $categoryRow->category_title_lang
+                            : (!empty($categoryRow->category_title_en) ? $categoryRow->category_title_en : null);
                     }
 
-                    $title = $categoryData->category_title;
+                    // Preserve original behaviour: if the category title is
+                    // missing for both languages, fail loudly the same way
+                    // the legacy code did (calling ->category_title on null).
+                    $title = $categoryTitle;
                     $id = (int) $service_category_id;
 
                     $dataArray[$title]['íd'] = $id;

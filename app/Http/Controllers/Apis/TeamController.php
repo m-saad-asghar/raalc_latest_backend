@@ -77,19 +77,29 @@ class TeamController extends Controller
             if ($teams->isEmpty()) {
                 return response()->json(['status' => 'false', 'message' => 'Team member not found'], Response::HTTP_NOT_FOUND);
             }
-    
+
+            /* -------------------------------------------------------------
+             * N+1 fix: bulk pre-load every TeamTranslation row needed for
+             * the page in a single query (current language plus the 'en'
+             * fallback), keyed by [team_id][lang] for O(1) lookups.
+             * ------------------------------------------------------------- */
+            $teamIds = collect($teams->items() ?? $teams->all())->pluck('id')->all();
+            $translationsByTeam = TeamTranslation::whereIn('team_id', $teamIds)
+                ->whereIn('lang', array_unique([$lang, 'en']))
+                ->get(['team_id', 'lang', 'fields_value'])
+                ->groupBy('team_id')
+                ->map(function ($rows) {
+                    return $rows->keyBy('lang');
+                });
+
             // Retrieve translations for each department
-            $teamssWithTranslations = $teams->map(function ($team) use ($lang) {
+            $teamssWithTranslations = $teams->map(function ($team) use ($lang, $translationsByTeam) {
                 $id = $team->id;
-                 $translation = TeamTranslation::where('team_id', $id)
-                ->where('lang', $lang)
-                ->first();
-                 
-                if (empty($translation)) {
-                    // For Defualt Language Data Fetch
-                    $translation = TeamTranslation::where('team_id', $id)
-                        ->where('lang', 'en')
-                        ->first();
+                $translation = null;
+                if (isset($translationsByTeam[$id])) {
+                    $translation = $translationsByTeam[$id][$lang]
+                        ?? $translationsByTeam[$id]['en']
+                        ?? null;
                 }
                 
                 
@@ -797,18 +807,28 @@ class TeamController extends Controller
                 return response()->json(['status' => 'false', 'message' => 'Team member not found'], Response::HTTP_NOT_FOUND);
             }
 
-            // Retrieve translations for each department
-            $teamssWithTranslations = $teams->map(function ($team) use ($lang) {
-                $id = $team->id;
-                $translation = TeamTranslation::where('team_id', $id)
-                    ->where('lang', $lang)
-                    ->first();
+            /* -------------------------------------------------------------
+             * N+1 fix: bulk pre-load TeamTranslation rows for the page in
+             * a single query (current language plus the 'en' fallback),
+             * keyed by [team_id][lang] for O(1) lookups.
+             * ------------------------------------------------------------- */
+            $teamIds = collect($teams->items() ?? $teams->all())->pluck('id')->all();
+            $translationsByTeam = TeamTranslation::whereIn('team_id', $teamIds)
+                ->whereIn('lang', array_unique([$lang, 'en']))
+                ->get(['team_id', 'lang', 'fields_value'])
+                ->groupBy('team_id')
+                ->map(function ($rows) {
+                    return $rows->keyBy('lang');
+                });
 
-                if (empty($translation)) {
-                    // For Defualt Language Data Fetch
-                    $translation = TeamTranslation::where('team_id', $id)
-                        ->where('lang', 'en')
-                        ->first();
+            // Retrieve translations for each department
+            $teamssWithTranslations = $teams->map(function ($team) use ($lang, $translationsByTeam) {
+                $id = $team->id;
+                $translation = null;
+                if (isset($translationsByTeam[$id])) {
+                    $translation = $translationsByTeam[$id][$lang]
+                        ?? $translationsByTeam[$id]['en']
+                        ?? null;
                 }
 
 
