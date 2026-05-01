@@ -176,8 +176,12 @@ Route::group(['prefix' => 'elements', 'middleware' => 'validateLang'], function(
 // WebContents Get Data Apis
 Route::group(['prefix' => 'webContents', 'middleware' => 'validateLang'], function() {
     
-    Route::get('/combineContent/{lang}', [WebContentController::class,'combineContent']);
-    
+    Route::get('/combineContent/{lang}', [WebContentController::class,'combineContent'])->name('combineContent');
+
+    // Flush file cache used by combineContent / home page content endpoints
+    Route::match(['get', 'post'], '/cache/flush', [WebContentController::class, 'flushWebContentCache'])
+        ->name('flushWebContentCache');
+
     /* Home content controller */
     // Route::post('/home/{lang}', [WebContentController::class, 'createOrUpdateWebHome']);
     Route::get('/home/{lang}', [WebContentController::class,'getWebHomeContent'])->name('home');

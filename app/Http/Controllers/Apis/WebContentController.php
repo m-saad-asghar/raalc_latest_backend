@@ -27,6 +27,7 @@ use App\Http\Controllers\Apis\EventController;
 use App\Http\Controllers\Apis\NewsController;
 use App\Http\Controllers\Apis\TeamController;
 use App\Http\Controllers\Apis\DepartmentController;
+use App\Services\WebContentCacheService;
 
 class WebContentController extends Controller
 {
@@ -46,7 +47,9 @@ class WebContentController extends Controller
             'webMetaDeta',
             'fetchPrivacyPolicy',
             'fetchTermsConditions',
-            'fetchOtherTab'
+            'fetchOtherTab',
+            'flushWebContentCache',
+            'combineContent'
         ];
     
         // Get current route name
@@ -920,14 +923,39 @@ $webContentId = $webContent->id;
     public function fetchHomePageContent($id, $lang)
     {
         try {
-            
+            $cacheKey = WebContentCacheService::homePageKey($id, $lang);
+            $cached = WebContentCacheService::remember($cacheKey, function () use ($id, $lang) {
+                return $this->buildHomePageContent($id, $lang);
+            });
+
+            if (isset($cached['__not_found']) && $cached['__not_found'] === true) {
+                return response()->json(['status' => 'false', 'message' => 'Home content not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json([
+                'status' => 'true',
+                'data' => $cached
+            ], Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json(['status' => 'false', 'message' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Build the home page content payload (heavy work). Result is cached
+     * by fetchHomePageContent via WebContentCacheService.
+     */
+    protected function buildHomePageContent($id, $lang)
+    {
+        try {
+
             $translateArray = array();
             $dataArray = array();
             // get home content
             $home = WebContent::where('id', $id)->first();
 
             if (!$home) {
-                return response()->json(['status' => 'false', 'message' => 'Home content not found'], Response::HTTP_NOT_FOUND);
+                return ['__not_found' => true];
             }
 
             // get translation for selected language
@@ -1012,12 +1040,10 @@ $webContentId = $webContent->id;
                 $translateArray['reviews'] = [];
             }
 
-            return response()->json([
-                'status' => 'true',
-                'data' => $translateArray
-            ], Response::HTTP_OK);
+            return $translateArray;
         } catch (\Exception $ex) {
-            return response()->json(['status' => 'false', 'message' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            // Don't cache exception result.
+            throw $ex;
         }
     }
     
@@ -1110,7 +1136,28 @@ $webContentId = $webContent->id;
 
     public function combineContent($lang){
         try {
-            
+            $cacheKey = WebContentCacheService::combineKey($lang);
+            $cached = WebContentCacheService::remember($cacheKey, function () use ($lang) {
+                return $this->buildCombineContent($lang);
+            });
+
+            return response()->json([
+                'status' => 'true',
+                'data' => $cached
+            ], Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json(['status' => 'false', 'message' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Build the combineContent payload (heavy work). Result is cached
+     * by combineContent via WebContentCacheService.
+     */
+    protected function buildCombineContent($lang)
+    {
+        try {
+
             $dataArray = array();
             // Element controller
             $elementController = new ElementController();
@@ -1168,16 +1215,39 @@ $webContentId = $webContent->id;
             } else {
                 $dataArray['contact_us'] = [];
             }
-            
-            return response()->json([
-                'status' => 'true',
-                'data' => $dataArray
-            ], Response::HTTP_OK);
+
+            return $dataArray;
         } catch (\Exception $ex) {
-            return response()->json(['status' => 'false', 'message' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            // Don't cache exception result.
+            throw $ex;
         }
     }
-    
+
+    /**
+     * Flush the file based cache used by combineContent and
+     * fetchHomePageContent, and any other entries registered via
+     * WebContentCacheService. This is also automatically invoked when a
+     * related module is created, updated or deleted.
+     */
+    public function flushWebContentCache()
+    {
+        try {
+            $cleared = WebContentCacheService::flush();
+
+            return response()->json([
+                'status'        => 'true',
+                'message'       => 'Web content cache flushed successfully',
+                'cleared_count' => count($cleared),
+                'cleared_keys'  => $cleared,
+            ], Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json([
+                'status'  => 'false',
+                'message' => $ex->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function getImageUrl($image_path)
     {
         $image_path = Storage::url($image_path);
