@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'cloudfront' => [
+        'cdn_url' => 'https://d2gnzuvgcotl3l.cloudfront.net',
+    ],
+
 ];

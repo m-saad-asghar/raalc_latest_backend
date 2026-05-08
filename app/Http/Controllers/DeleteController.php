@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Services\ImageUrlService;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -155,7 +156,7 @@ public function deletedTeams(Request $request) {
         ->leftJoin('team_translations', 'team_translations.team_id', '=', 'teams.id')
         ->select(
             'teams.id',
-            DB::raw('CONCAT("https://api.raalc.ae/storage/", MAX(teams.lowyer_image)) as lowyer_image'),
+            DB::raw('MAX(teams.lowyer_image) as lowyer_image'),
             DB::raw('MAX(teams.updated_at) as updated_at'),
             DB::raw('MAX(teams.active) as active'),
             DB::raw('JSON_UNQUOTE(JSON_EXTRACT(MAX(team_translations.fields_value), "$.name")) as name'),
@@ -177,6 +178,11 @@ if (!empty($filterName)) {
         ->offset($offset)
         ->limit($perPage)
         ->get();
+
+    $team->transform(function ($item) {
+        $item->lowyer_image = ImageUrlService::url($item->lowyer_image);
+        return $item;
+    });
 
     if ($team) {
         return response()->json([

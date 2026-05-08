@@ -1255,9 +1255,7 @@ $webContentId = $webContent->id;
 
     public function getImageUrl($image_path)
     {
-        $image_path = Storage::url($image_path);
-        $image_url = asset($image_path);
-        return $image_url;
+        return \App\Services\ImageUrlService::url($image_path);
     }
     
 }

@@ -315,9 +315,6 @@ class AuthorController extends Controller
      */
     private function getImageUrl($image_path)
     {
-        if (Storage::disk('public')->exists($image_path)) {
-            return asset('storage/' . $image_path);
-        }
-        return asset('storage/' . $image_path);
+        return \App\Services\ImageUrlService::url($image_path);
     }
 }
