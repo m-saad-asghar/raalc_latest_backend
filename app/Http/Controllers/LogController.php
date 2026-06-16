@@ -595,4 +595,95 @@ $latestLog = DB::table('logs')
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function getPhoneLogs(Request $request)
+    {
+        // $phoneNumber = $request->get('phone_number');
+        // $type = $request->get('type');
+
+        // $query = DB::table('logs')
+        //     ->where('phone_number', $phoneNumber)
+        //     ->when($type, function ($q) use ($type) {
+        //         $q->where('type', $type);
+        //     });
+
+        // $latestLog = $query
+        //     ->select(
+        //         'id',
+        //         'page_url',
+        //         'ip_address',
+        //         'created_at',
+        //         'origin',
+        //         'type',
+        //         'source',
+        //         'ad_number',
+        //         'compaign_source',
+        //         'message',
+        //         'phone_number'
+        //     )
+        //     ->latest('created_at')
+        //     ->first();
+
+        // return response()->json([
+        //     'status' => 1,
+        //     'data' => $latestLog
+        // ]);
+        $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $phoneNumber = $request->get('phone_number');
+        $type = $request->get('type');
+
+        // Validate required parameters
+        if (empty($phoneNumber)) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Phone number is required.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Normalize phone number with + prefix if not already present
+        if (!empty($phoneNumber) && strpos($phoneNumber, '+') !== 0) {
+            $phoneNumber = '+' . $phoneNumber;
+        }
+
+        // Base query for phone logs
+        $query = DB::table('logs')
+            ->where('phone_number', $phoneNumber);
+
+        // Add type filter if provided
+        if (!empty($type)) {
+            $query->where('type', $type);
+        }
+
+        // Get total count
+        $total = (clone $query)->count();
+
+        // Get paginated data
+        $data = (clone $query)
+            ->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source', 'message', 'phone_number')
+            ->orderBy('created_at', 'desc')
+            ->offset($offset)
+            // ->limit($perPage)
+            ->limit(1)
+            ->get();
+
+        // Get type summary for this phone number
+        $typeCounts = DB::table('logs')
+            ->select('type', DB::raw('count(*) as total'))
+            ->where('phone_number', $phoneNumber)
+            ->groupBy('type')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->type => $item->total];
+            });
+
+        return response()->json([
+            'current_page' => (int) $currentPage,
+            'per_page' => (int) $perPage,
+            'total' => $total,
+            'data' => $data,
+            'type_summary' => $typeCounts
+        ]);
+    }
 }

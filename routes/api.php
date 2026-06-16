@@ -25,6 +25,7 @@ use App\Http\Controllers\Apis\ReviewController;
 use App\Http\Controllers\Apis\ElementController;
 use App\Http\Controllers\Apis\QuoteController;
 use App\Http\Controllers\Apis\ThankYouEmailController;
+// use App\Http\Controllers\Apis\TestEmailController;
 use App\Http\Controllers\Apis\CaseManagementController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\DeleteController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\ServiceDataController;
 Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
 // Thank You Email API Route
 Route::post('/send-thank-you-email', [ThankYouEmailController::class, 'sendThankYouEmail']);
+// Route::post('/send-test-email', [TestEmailController::class, 'sendTestEmail']);
 
 
 /*
@@ -56,6 +58,7 @@ Route::post('teamSlug', [TeamController::class, 'teamSlug'])->name('teamSlug');
 Route::any('save_log', [LogController::class, 'saveLog'])->name('saveLog');
 Route::any('save_logs', [LogController::class, 'saveLogs'])->name('saveLogs');
 Route::get('get_logs', [LogController::class, 'getLogs'])->name('getLogs');
+Route::get('get_phone_logs', [LogController::class, 'getPhoneLogs'])->name('getPhoneLogs');
 Route::get('get_logs_latest_record', [LogController::class, 'getLogsLatestRecord'])->name('getLogsLatestRecord');
 Route::get('latest_log', [LogController::class, 'getLatestLog'])->name('getLatestLog');
 Route::post('get_ad_name', [LogController::class, 'getAdName'])->name('getAdName');
