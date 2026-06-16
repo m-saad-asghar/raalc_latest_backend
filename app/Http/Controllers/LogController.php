@@ -657,7 +657,7 @@ $latestLog = DB::table('logs')
         }
 
         // Get total count
-        $total = (clone $query)->count();
+        // $total = (clone $query)->count();
 
         // Get paginated data
         $data = (clone $query)
@@ -667,6 +667,8 @@ $latestLog = DB::table('logs')
             // ->limit($perPage)
             ->limit(1)
             ->get();
+
+        $total = $data->count();
 
         // Get type summary for this phone number
         $typeCounts = DB::table('logs')
