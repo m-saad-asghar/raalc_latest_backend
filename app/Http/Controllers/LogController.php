@@ -662,7 +662,7 @@ $latestLog = DB::table('logs')
         // Get paginated data
         $data = (clone $query)
             ->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source', 'message', 'phone_number')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->offset($offset)
             // ->limit($perPage)
             ->limit(1)
@@ -671,21 +671,21 @@ $latestLog = DB::table('logs')
         $total = $data->count();
 
         // Get type summary for this phone number
-        $typeCounts = DB::table('logs')
-            ->select('type', DB::raw('count(*) as total'))
-            ->where('phone_number', $phoneNumber)
-            ->groupBy('type')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->type => $item->total];
-            });
+        // $typeCounts = DB::table('logs')
+        //     ->select('type', DB::raw('count(*) as total'))
+        //     ->where('phone_number', $phoneNumber)
+        //     ->groupBy('type')
+        //     ->get()
+        //     ->mapWithKeys(function ($item) {
+        //         return [$item->type => $item->total];
+        //     });
 
         return response()->json([
             'current_page' => (int) $currentPage,
             'per_page' => (int) $perPage,
             'total' => $total,
             'data' => $data,
-            'type_summary' => $typeCounts
+            // 'type_summary' => $typeCounts
         ]);
     }
 }
