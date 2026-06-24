@@ -561,6 +561,8 @@ $latestLog = DB::table('logs')
                     'gclid',
                     'message',
                     'ip_address as ip',
+                    'type',
+                    'source',
                     'created_at'
                 );
 
@@ -581,9 +583,22 @@ $latestLog = DB::table('logs')
                 ], Response::HTTP_NOT_FOUND);
             }
 
+            // Extract all page_url parameters dynamically
+            $pageUrlParams = [];
+            if (!empty($log->page_url)) {
+                $parsedUrl = parse_url($log->page_url);
+                if (isset($parsedUrl['query'])) {
+                    parse_str($parsedUrl['query'], $pageUrlParams);
+                }
+            }
+
+            // Combine existing log data with parsed page_url parameters
+            $responseData = (array) $log;
+            $responseData['page_url_params'] = $pageUrlParams;
+
             return response()->json([
                 'status' => true,
-                'data'   => $log,
+                'data'   => $responseData,
             ], Response::HTTP_OK);
 
         } catch (\Exception $e) {
