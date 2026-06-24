@@ -586,6 +586,7 @@ $latestLog = DB::table('logs')
             // Extract all page_url parameters dynamically
             $pageUrlParams = [];
             $campaignType = 'organic';
+            $staticCampaignType = 'Organic';
             
             if (!empty($log->page_url)) {
                 $parsedUrl = parse_url($log->page_url);
@@ -594,6 +595,7 @@ $latestLog = DB::table('logs')
                     // Determine campaign_type based on utm_source availability
                     if (!empty($pageUrlParams['utm_source'])) {
                         $campaignType = $pageUrlParams['utm_source'];
+                        $staticCampaignType = 'Google Ads';
                     }
                 }
             }
@@ -602,6 +604,7 @@ $latestLog = DB::table('logs')
             $responseData = (array) $log;
             $responseData['page_url_params'] = $pageUrlParams;
             $responseData['campaign_type'] = $campaignType;
+            $responseData['static_campaign_type'] = $staticCampaignType;
 
             return response()->json([
                 'status' => true,
