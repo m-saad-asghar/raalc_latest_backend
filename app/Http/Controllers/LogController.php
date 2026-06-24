@@ -585,16 +585,23 @@ $latestLog = DB::table('logs')
 
             // Extract all page_url parameters dynamically
             $pageUrlParams = [];
+            $campaignType = 'organic';
+            
             if (!empty($log->page_url)) {
                 $parsedUrl = parse_url($log->page_url);
                 if (isset($parsedUrl['query'])) {
                     parse_str($parsedUrl['query'], $pageUrlParams);
+                    // Determine campaign_type based on utm_source availability
+                    if (!empty($pageUrlParams['utm_source'])) {
+                        $campaignType = $pageUrlParams['utm_source'];
+                    }
                 }
             }
 
             // Combine existing log data with parsed page_url parameters
             $responseData = (array) $log;
             $responseData['page_url_params'] = $pageUrlParams;
+            $responseData['campaign_type'] = $campaignType;
 
             return response()->json([
                 'status' => true,
