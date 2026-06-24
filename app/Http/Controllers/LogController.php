@@ -311,7 +311,7 @@ public function genericLandingPagesCounter(Request $request, $page, $totalCount)
     $total = (clone $query)->count();
 
     $data = (clone $query)
-        ->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source')
+        ->select('id', 'page_url', 'ip_address', 'created_at', 'origin', 'type', 'source', 'ad_number', 'compaign_source', 'phone_number')
         ->orderBy('created_at', 'desc')
         ->offset($offset)
         ->limit($perPage)
